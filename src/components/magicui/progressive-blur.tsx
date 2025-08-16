@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { cn } from "~/lib/utils";
-import React from "react";
+import { cn } from '~/lib/utils';
+import React from 'react';
 
 export interface ProgressiveBlurProps {
   className?: string;
   height?: string;
-  position?: "top" | "bottom" | "both";
+  position?: 'top' | 'bottom' | 'both';
   blurLevels?: number[];
   children?: React.ReactNode;
 }
 
 export function ProgressiveBlur({
   className,
-  height = "30%",
-  position = "bottom",
+  height = '30%',
+  position = 'bottom',
   blurLevels = [0.5, 1, 2, 4, 8, 16, 32, 64],
 }: ProgressiveBlurProps) {
   // Create array with length equal to blurLevels.length - 2 (for before/after pseudo elements)
@@ -23,16 +23,16 @@ export function ProgressiveBlur({
   return (
     <div
       className={cn(
-        "gradient-blur pointer-events-none absolute z-10 inset-x-0",
+        'gradient-blur pointer-events-none absolute z-10 inset-x-0',
         className,
-        position === "top"
-          ? "top-0"
-          : position === "bottom"
-            ? "bottom-0"
-            : "inset-y-0",
+        position === 'top'
+          ? 'top-0'
+          : position === 'bottom'
+            ? 'bottom-0'
+            : 'inset-y-0'
       )}
       style={{
-        height: position === "both" ? "100%" : height,
+        height: position === 'both' ? '100%' : height,
       }}
     >
       {/* First blur layer (pseudo element) */}
@@ -43,15 +43,15 @@ export function ProgressiveBlur({
           backdropFilter: `blur(${blurLevels[0]}px)`,
           WebkitBackdropFilter: `blur(${blurLevels[0]}px)`,
           maskImage:
-            position === "bottom"
+            position === 'bottom'
               ? `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 12.5%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 37.5%)`
-              : position === "top"
+              : position === 'top'
                 ? `linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 12.5%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 37.5%)`
                 : `linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)`,
           WebkitMaskImage:
-            position === "bottom"
+            position === 'bottom'
               ? `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 12.5%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 37.5%)`
-              : position === "top"
+              : position === 'top'
                 ? `linear-gradient(to top, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 12.5%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 37.5%)`
                 : `linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)`,
         }}
@@ -65,9 +65,9 @@ export function ProgressiveBlur({
         const endPercent = (blurIndex + 2) * 12.5;
 
         const maskGradient =
-          position === "bottom"
+          position === 'bottom'
             ? `linear-gradient(to bottom, rgba(0,0,0,0) ${startPercent}%, rgba(0,0,0,1) ${midPercent}%, rgba(0,0,0,1) ${endPercent}%, rgba(0,0,0,0) ${endPercent + 12.5}%)`
-            : position === "top"
+            : position === 'top'
               ? `linear-gradient(to top, rgba(0,0,0,0) ${startPercent}%, rgba(0,0,0,1) ${midPercent}%, rgba(0,0,0,1) ${endPercent}%, rgba(0,0,0,0) ${endPercent + 12.5}%)`
               : `linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)`;
 
@@ -94,15 +94,15 @@ export function ProgressiveBlur({
           backdropFilter: `blur(${blurLevels[blurLevels.length - 1]}px)`,
           WebkitBackdropFilter: `blur(${blurLevels[blurLevels.length - 1]}px)`,
           maskImage:
-            position === "bottom"
+            position === 'bottom'
               ? `linear-gradient(to bottom, rgba(0,0,0,0) 87.5%, rgba(0,0,0,1) 100%)`
-              : position === "top"
+              : position === 'top'
                 ? `linear-gradient(to top, rgba(0,0,0,0) 87.5%, rgba(0,0,0,1) 100%)`
                 : `linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)`,
           WebkitMaskImage:
-            position === "bottom"
+            position === 'bottom'
               ? `linear-gradient(to bottom, rgba(0,0,0,0) 87.5%, rgba(0,0,0,1) 100%)`
-              : position === "top"
+              : position === 'top'
                 ? `linear-gradient(to top, rgba(0,0,0,0) 87.5%, rgba(0,0,0,1) 100%)`
                 : `linear-gradient(rgba(0,0,0,0) 0%, rgba(0,0,0,1) 5%, rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)`,
         }}
