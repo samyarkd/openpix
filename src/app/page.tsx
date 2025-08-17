@@ -1,7 +1,7 @@
 'use client';
 import Konva from 'konva';
 import { DownloadIcon, SlidersHorizontalIcon } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Layer, Stage } from 'react-konva';
 import type { FiltersState } from '~/components/filters-context';
 import { useFilters } from '~/components/filters-context';
@@ -31,6 +31,8 @@ export default function Home() {
   const stageRef = useRef<Konva.Stage>(null);
   const { open } = useSidebar();
   const { filters } = useFilters();
+  // Defer filter updates so slider UI stays responsive while image updates later
+  const deferredFilters = useDeferredValue(filters);
 
   // Export options
   const [exportMime, setExportMime] = useState<
@@ -170,7 +172,7 @@ export default function Home() {
           offsetY={offsetY}
           image={image}
           stageRef={stageRef}
-          filtersState={filters}
+          filtersState={deferredFilters}
         />
       ) : (
         <ImageDropZone onSelect={(url) => setImageUrl(url)} />
@@ -251,6 +253,7 @@ function CanvasWithFilters({
   filtersState,
 }: CanvasProps) {
   const imageRef = useRef<Konva.Image>(null);
+  const isCachedRef = useRef(false);
 
   const activeFilters = useMemo(() => {
     const list = [];
@@ -284,18 +287,24 @@ function CanvasWithFilters({
     return list;
   }, [filtersState]);
 
+  const hasFilters = activeFilters.length > 0;
+
   useEffect(() => {
     const node = imageRef.current;
     if (!node) return;
-    if (activeFilters.length > 0) {
-      // cache to enable filters
-      node.cache();
-      node.getLayer()?.batchDraw();
+    if (hasFilters) {
+      if (!isCachedRef.current) {
+        node.cache();
+        isCachedRef.current = true;
+      }
     } else {
-      node.clearCache();
-      node.getLayer()?.batchDraw();
+      if (isCachedRef.current) {
+        node.clearCache();
+        isCachedRef.current = false;
+      }
     }
-  }, [activeFilters]);
+    node.getLayer()?.batchDraw();
+  }, [hasFilters]);
 
   const konvaImage = (
     <Image
@@ -305,6 +314,8 @@ function CanvasWithFilters({
       height={drawH}
       x={offsetX}
       y={offsetY}
+      listening={false}
+      perfectDrawEnabled={false}
       // Filters
       filters={activeFilters}
       // Blur

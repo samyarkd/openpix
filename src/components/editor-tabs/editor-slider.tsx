@@ -25,6 +25,39 @@ function EditorSliderImpl({
   onValueChange,
   className = '',
 }: EditorSliderProps) {
+  // rAF-throttle onValueChange to ~60fps for smoother scrubbing
+  const cbRef = React.useRef(onValueChange);
+  React.useEffect(() => {
+    cbRef.current = onValueChange;
+  }, [onValueChange]);
+
+  const rafRef = React.useRef<number | null>(null);
+  const pendingRef = React.useRef<number[] | null>(null);
+
+  const flush = React.useCallback(() => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    if (pendingRef.current && cbRef.current) {
+      cbRef.current(pendingRef.current);
+    }
+    pendingRef.current = null;
+  }, []);
+
+  const handleChange = React.useCallback((val: number[]) => {
+    pendingRef.current = val;
+    if (rafRef.current === null) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null;
+        if (pendingRef.current && cbRef.current) {
+          cbRef.current(pendingRef.current);
+        }
+        pendingRef.current = null;
+      });
+    }
+  }, []);
+
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
       <Label htmlFor={id}>{label}</Label>
@@ -36,7 +69,10 @@ function EditorSliderImpl({
         title={label}
         defaultValue={defaultValue}
         value={value}
-        onValueChange={onValueChange}
+        onValueChange={handleChange}
+        // Flush pending update on pointer/key release for final precise value
+        onPointerUp={flush}
+        onKeyUp={flush}
       />
     </div>
   );

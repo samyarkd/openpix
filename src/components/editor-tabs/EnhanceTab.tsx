@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { startTransition } from 'react';
 import { useFilters } from '~/components/filters-context';
 import { EditorSlider } from './editor-slider';
 
@@ -8,22 +8,22 @@ export default function EnhanceTab() {
   const { filters, setFilters } = useFilters();
 
   // Stable callbacks per control
-  const onEnhance = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, enhance: v })), [setFilters]);
-  const onBrightness = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, brightness: v })), [setFilters]);
-  const onContrast = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, contrast: v })), [setFilters]);
-  const onBlur = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, blurRadius: v })), [setFilters]);
-  const onNoise = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, noise: v })), [setFilters]);
-  const onPixelSize = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, pixelSize: v })), [setFilters]);
-  const onThreshold = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, threshold: v })), [setFilters]);
-  const onLevels = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, levels: v })), [setFilters]);
-  const onRed = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, red: v })), [setFilters]);
-  const onGreen = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, green: v })), [setFilters]);
-  const onBlue = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, blue: v })), [setFilters]);
-  const onAlpha = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, alpha: v })), [setFilters]);
-  const onHue = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, hue: v })), [setFilters]);
-  const onSaturation = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, saturation: v })), [setFilters]);
-  const onLuminance = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, luminance: v })), [setFilters]);
-  const onValue = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, value: v })), [setFilters]);
+  const onEnhance = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, enhance: v }))), [setFilters]);
+  const onBrightness = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, brightness: v }))), [setFilters]);
+  const onContrast = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, contrast: v }))), [setFilters]);
+  const onBlur = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, blurRadius: v }))), [setFilters]);
+  const onNoise = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, noise: v }))), [setFilters]);
+  const onPixelSize = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, pixelSize: v }))), [setFilters]);
+  const onThreshold = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, threshold: v }))), [setFilters]);
+  const onLevels = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, levels: v }))), [setFilters]);
+  const onRed = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, red: v }))), [setFilters]);
+  const onGreen = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, green: v }))), [setFilters]);
+  const onBlue = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, blue: v }))), [setFilters]);
+  const onAlpha = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, alpha: v }))), [setFilters]);
+  const onHue = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, hue: v }))), [setFilters]);
+  const onSaturation = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, saturation: v }))), [setFilters]);
+  const onLuminance = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, luminance: v }))), [setFilters]);
+  const onValue = React.useCallback(([v]: number[]) => startTransition(() => setFilters((s) => ({ ...s, value: v }))), [setFilters]);
 
   // Stable value arrays so EditorSlider props remain referentially equal
   const enhanceVal = React.useMemo(() => [filters.enhance], [filters.enhance]);
