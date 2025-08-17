@@ -34,6 +34,18 @@ export default function Home() {
   // Defer filter updates so slider UI stays responsive while image updates later
   const deferredFilters = useDeferredValue(filters);
 
+  // Detect scrubbing (frequent filter changes) to lower preview quality
+  const [isScrubbing, setIsScrubbing] = useState(false);
+  useEffect(() => {
+    let tid: NodeJS.Timeout | null = null;
+    setIsScrubbing(true);
+    tid && clearTimeout(tid);
+    tid = setTimeout(() => setIsScrubbing(false), 150);
+    return () => {
+      if (tid) clearTimeout(tid);
+    };
+  }, [filters]);
+
   // Export options
   const [exportMime, setExportMime] = useState<
     'image/png' | 'image/jpeg' | 'image/webp'
@@ -51,28 +63,29 @@ export default function Home() {
     };
   }, [imageUrl]);
 
+  const measure = useCallback(() => {
+    if (!ref.current) return;
+    const w = ref.current.clientWidth || 0;
+    const h = ref.current.clientHeight || 0;
+    setContainer((prev) =>
+      prev.width !== w || prev.height !== h ? { width: w, height: h } : prev
+    );
+  }, []);
+
   useEffect(() => {
-    const update = () => {
-      if (!ref.current) return;
-      const w = ref.current.clientWidth || 0;
-      const h = ref.current.clientHeight || 0;
-      setContainer((prev) =>
-        prev.width !== w || prev.height !== h ? { width: w, height: h } : prev
-      );
-    };
-    update();
+    measure();
 
     let ro: ResizeObserver | null = null;
     if (typeof ResizeObserver !== 'undefined' && ref.current) {
-      ro = new ResizeObserver(update);
+      ro = new ResizeObserver(() => measure());
       ro.observe(ref.current);
     }
 
-    // Debounced resize handler for better performance
+    // Debounced window resize handler
     let resizeTimeout: NodeJS.Timeout;
     const handleResize = () => {
       clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(update, 100);
+      resizeTimeout = setTimeout(measure, 100);
     };
 
     window.addEventListener('resize', handleResize);
@@ -81,7 +94,38 @@ export default function Home() {
       clearTimeout(resizeTimeout);
       ro?.disconnect();
     };
-  }, []);
+  }, [measure]);
+
+  // Ensure we re-measure when the sidebar open state changes
+  useEffect(() => {
+    // Measure now and after the sidebar transition ends (~200ms)
+    measure();
+    const id = setTimeout(measure, 250);
+    // Also schedule a rAF tick to catch immediate layout
+    const raf = requestAnimationFrame(measure);
+    return () => {
+      clearTimeout(id);
+      cancelAnimationFrame(raf);
+    };
+  }, [open, measure]);
+
+  // Also listen for the actual CSS transition end on the sidebar gap
+  useEffect(() => {
+    const gap = document.querySelector<HTMLElement>('[data-slot="sidebar-gap"]');
+    if (!gap) return;
+    const onEnd = () => measure();
+    gap.addEventListener('transitionend', onEnd);
+    return () => gap.removeEventListener('transitionend', onEnd);
+  }, [measure]);
+
+  // Observe sidebar gap size changes to react during the animation
+  useEffect(() => {
+    const gap = document.querySelector<HTMLElement>('[data-slot="sidebar-gap"]');
+    if (!gap || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(gap);
+    return () => ro.disconnect();
+  }, [measure]);
 
   // High-DPI: sync Konva pixel ratio with devicePixelRatio
   useEffect(() => {
@@ -98,7 +142,7 @@ export default function Home() {
   const imgH = image?.height || 0;
   // Snap to whole pixels to avoid subpixel blur
   const stageW = Math.max(0, Math.round(container.width));
-  const stageH = Math.max(0, Math.round(container.height - 1));
+  const stageH = Math.max(0, Math.round(container.height));
   const scale =
     imgW && imgH && stageW && stageH
       ? Math.min(stageW / imgW, stageH / imgH)
@@ -173,6 +217,7 @@ export default function Home() {
           image={image}
           stageRef={stageRef}
           filtersState={deferredFilters}
+          preview={isScrubbing}
         />
       ) : (
         <ImageDropZone onSelect={(url) => setImageUrl(url)} />
@@ -239,6 +284,7 @@ type CanvasProps = {
   image: HTMLImageElement;
   stageRef: React.RefObject<Konva.Stage | null>;
   filtersState: FiltersState;
+  preview: boolean;
 };
 
 function CanvasWithFilters({
@@ -251,9 +297,11 @@ function CanvasWithFilters({
   image,
   stageRef,
   filtersState,
+  preview,
 }: CanvasProps) {
   const imageRef = useRef<Konva.Image>(null);
   const isCachedRef = useRef(false);
+  const cacheRatioRef = useRef(1);
 
   const activeFilters = useMemo(() => {
     const list = [];
@@ -272,39 +320,66 @@ function CanvasWithFilters({
       filtersState.alpha !== 1
     )
       list.push(Konva.Filters.RGBA);
-    if (
-      filtersState.hue !== 0 ||
-      filtersState.saturation !== 0 ||
-      filtersState.luminance !== 0
-    )
-      list.push(Konva.Filters.HSL);
-    if (
-      filtersState.hue !== 0 ||
-      filtersState.saturation !== 0 ||
-      filtersState.value !== 0
-    )
-      list.push(Konva.Filters.HSV);
+    // Avoid applying both HSL and HSV at the same time.
+    // Prefer HSV when 'value' is active; otherwise prefer HSL when 'luminance' is active;
+    // if only hue/saturation changed, default to HSL.
+    const hasHueSat = filtersState.hue !== 0 || filtersState.saturation !== 0;
+    const useHSV = filtersState.value !== 0;
+    const useHSL = !useHSV && (filtersState.luminance !== 0 || hasHueSat);
+    if (useHSL) list.push(Konva.Filters.HSL);
+    else if (useHSV) list.push(Konva.Filters.HSV);
     return list;
   }, [filtersState]);
 
   const hasFilters = activeFilters.length > 0;
 
+  // Choose a lower cache pixel ratio during scrubbing,
+  // scaled by current draw area to keep FPS high on large images.
+  const previewRatio = useMemo(() => {
+    if (!preview) return 1;
+    const area = Math.max(1, drawW * drawH);
+    if (area > 2_000_000) return 0.35; // very large
+    if (area > 1_000_000) return 0.5; // large
+    return 0.7; // medium/small
+  }, [preview, drawW, drawH]);
+
   useEffect(() => {
     const node = imageRef.current;
     if (!node) return;
+    const desiredRatio = hasFilters ? previewRatio : 1;
     if (hasFilters) {
-      if (!isCachedRef.current) {
-        node.cache();
+      if (!isCachedRef.current || cacheRatioRef.current !== desiredRatio) {
+        node.cache({ pixelRatio: desiredRatio });
+        cacheRatioRef.current = desiredRatio;
         isCachedRef.current = true;
       }
     } else {
       if (isCachedRef.current) {
         node.clearCache();
         isCachedRef.current = false;
+        cacheRatioRef.current = 1;
       }
     }
     node.getLayer()?.batchDraw();
-  }, [hasFilters]);
+  }, [hasFilters, previewRatio]);
+
+  // When geometry changes, ensure Stage and cached image refresh correctly
+  useEffect(() => {
+    const stage = stageRef.current as Konva.Stage | null;
+    if (stage) {
+      // Imperatively sync size to avoid stale canvas dims
+      if (typeof stageW === 'number') stage.width(stageW);
+      if (typeof stageH === 'number') stage.height(stageH);
+      stage.batchDraw();
+    }
+
+    const node = imageRef.current;
+    if (node && isCachedRef.current) {
+      // Rebuild cache at new size/position so filters render crisp
+      node.cache({ pixelRatio: cacheRatioRef.current });
+      node.getLayer()?.batchDraw();
+    }
+  }, [stageW, stageH, drawW, drawH, offsetX, offsetY, stageRef]);
 
   const konvaImage = (
     <Image
@@ -316,6 +391,8 @@ function CanvasWithFilters({
       y={offsetY}
       listening={false}
       perfectDrawEnabled={false}
+      shadowForStrokeEnabled={false}
+      transformsEnabled="position"
       // Filters
       filters={activeFilters}
       // Blur
@@ -343,8 +420,8 @@ function CanvasWithFilters({
   );
 
   return (
-    <Stage width={stageW} height={stageH} ref={stageRef}>
-      <Layer>{konvaImage}</Layer>
+    <Stage width={stageW} height={stageH} ref={stageRef} key={`${stageW}x${stageH}`}>
+      <Layer listening={false}>{konvaImage}</Layer>
     </Stage>
   );
 }

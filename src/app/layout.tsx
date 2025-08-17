@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { AppSidebar } from '~/components/app-sidebar';
 import { ModeToggle } from '~/components/mode-toggle';
 import { ThemeProvider } from '~/components/theme-provider';
-import { SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar';
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar';
 import { FiltersProvider } from '~/components/filters-context';
 import './globals.css';
 
@@ -36,7 +36,7 @@ export default function RootLayout({
           <SidebarProvider>
             <FiltersProvider>
               <AppSidebar />
-              <main className="relative flex-1 min-h-svh">
+              <SidebarInset className="relative flex-1 min-h-svh">
               {/* Navbar */}
               <nav className="flex items-start justify-between absolute top-0 z-10 right-0 left-0">
                 <SidebarTrigger className="cursor-pointer m-1 backdrop-blur-3xl" />
@@ -46,7 +46,7 @@ export default function RootLayout({
               </nav>
               {/* Content */}
               {children}
-              </main>
+              </SidebarInset>
             </FiltersProvider>
           </SidebarProvider>
         </ThemeProvider>
