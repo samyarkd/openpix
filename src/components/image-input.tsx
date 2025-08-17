@@ -1,5 +1,5 @@
 import { ImageUpIcon } from 'lucide-react';
-import React, {
+import {
   ChangeEventHandler,
   DragEventHandler,
   useEffect,
@@ -105,11 +105,11 @@ const ImageDropZone = ({ onSelect }: ImageDropZoneProps) => {
           handleClick();
         }
       }}
-      className="h-full flex items-center justify-center bg-radial from-transparent z-10 relative via-black to-black"
+      className="h-full flex items-center justify-center bg-radial from-transparent z-10 relative via-white to-white dark:via-black dark:to-black"
     >
       <Button
         variant="ghost"
-        className="bg-black !py-10 !px-20 rounded-lg border cursor-pointer"
+        className="!py-10 !px-20 rounded-lg border cursor-pointer"
       >
         <ImageUpIcon size={90} />
         <p>

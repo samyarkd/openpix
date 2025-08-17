@@ -4,6 +4,7 @@ import { AppSidebar } from '~/components/app-sidebar';
 import { ModeToggle } from '~/components/mode-toggle';
 import { ThemeProvider } from '~/components/theme-provider';
 import { SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar';
+import { FiltersProvider } from '~/components/filters-context';
 import './globals.css';
 
 const geistSans = Geist({
@@ -33,8 +34,9 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="dark">
           <SidebarProvider>
-            <AppSidebar />
-            <main className="relative flex-1 min-h-svh">
+            <FiltersProvider>
+              <AppSidebar />
+              <main className="relative flex-1 min-h-svh">
               {/* Navbar */}
               <nav className="flex items-start justify-between absolute top-0 z-10 right-0 left-0">
                 <SidebarTrigger className="cursor-pointer m-1 backdrop-blur-3xl" />
@@ -44,7 +46,8 @@ export default function RootLayout({
               </nav>
               {/* Content */}
               {children}
-            </main>
+              </main>
+            </FiltersProvider>
           </SidebarProvider>
         </ThemeProvider>
       </body>

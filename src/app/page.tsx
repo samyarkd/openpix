@@ -1,24 +1,25 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
 import Konva from 'konva';
+import { DownloadIcon, SlidersHorizontalIcon } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Layer, Stage } from 'react-konva';
+import type { FiltersState } from '~/components/filters-context';
+import { useFilters } from '~/components/filters-context';
 import ImageDropZone from '~/components/image-input';
 import { GridPattern } from '~/components/magicui/grid-pattern';
-import { useSidebar } from '~/components/ui/sidebar';
-import { useImage } from '~/hooks/use-image';
-import { downloadStage } from '~/lib/export-image';
 import { Button } from '~/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { DownloadIcon, SlidersHorizontalIcon } from 'lucide-react';
+import { useSidebar } from '~/components/ui/sidebar';
+import { useImage } from '~/hooks/use-image';
+import { downloadStage } from '~/lib/export-image';
 
 export default function Home() {
   const [imageUrl, setImageUrl] = useState('');
@@ -28,13 +29,16 @@ export default function Home() {
   const ref = useRef<HTMLDivElement>(null);
   const [container, setContainer] = useState({ width: 0, height: 0 });
   const stageRef = useRef<Konva.Stage>(null);
-  const { state, open, openMobile } = useSidebar();
+  const { open } = useSidebar();
+  const { filters } = useFilters();
 
   // Export options
-  const [exportMime, setExportMime] = useState<'image/png' | 'image/jpeg' | 'image/webp'>(
-    'image/png'
+  const [exportMime, setExportMime] = useState<
+    'image/png' | 'image/jpeg' | 'image/webp'
+  >('image/png');
+  const [exportScale, setExportScale] = useState<'1' | '2' | '3' | 'dpr'>(
+    'dpr'
   );
-  const [exportScale, setExportScale] = useState<'1' | '2' | '3' | 'dpr'>('dpr');
 
   // Revoke old object URLs to avoid leaks
   useEffect(() => {
@@ -102,7 +106,7 @@ export default function Home() {
   const offsetX = Math.round((stageW - drawW) / 2);
   const offsetY = Math.round((stageH - drawH) / 2);
 
-  const handleDownload = async () => {
+  const handleDownload = useCallback(async () => {
     const stage = stageRef.current;
     if (!stage) return;
     try {
@@ -130,10 +134,10 @@ export default function Home() {
         width: cropW,
         height: cropH,
       });
-    } catch (e) {
+    } catch {
       // no-op
     }
-  };
+  }, [exportScale, exportMime, offsetX, offsetY, drawW, drawH, imgW]);
 
   // Keyboard: Ctrl/Cmd+S to export when an image is loaded
   useEffect(() => {
@@ -146,7 +150,7 @@ export default function Home() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [image]);
+  }, [image, handleDownload]);
 
   return (
     <div
@@ -157,17 +161,17 @@ export default function Home() {
       {/* canvas */}
       <GridPattern className="z-0" />
       {image ? (
-        <Stage width={stageW} height={stageH} ref={stageRef}>
-          <Layer>
-            <Image
-              image={image}
-              width={drawW}
-              height={drawH}
-              x={offsetX}
-              y={offsetY}
-            />
-          </Layer>
-        </Stage>
+        <CanvasWithFilters
+          stageW={stageW}
+          stageH={stageH}
+          drawW={drawW}
+          drawH={drawH}
+          offsetX={offsetX}
+          offsetY={offsetY}
+          image={image}
+          stageRef={stageRef}
+          filtersState={filters}
+        />
       ) : (
         <ImageDropZone onSelect={(url) => setImageUrl(url)} />
       )}
@@ -204,7 +208,9 @@ export default function Home() {
               <DropdownMenuLabel>Scale</DropdownMenuLabel>
               <DropdownMenuRadioGroup
                 value={exportScale}
-                onValueChange={(v) => setExportScale(v as '1' | '2' | '3' | 'dpr')}
+                onValueChange={(v) =>
+                  setExportScale(v as '1' | '2' | '3' | 'dpr')
+                }
               >
                 <DropdownMenuRadioItem value="1">1x</DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="2">2x</DropdownMenuRadioItem>
@@ -218,5 +224,116 @@ export default function Home() {
         </div>
       )}
     </div>
+  );
+}
+
+type CanvasProps = {
+  stageW: number;
+  stageH: number;
+  drawW: number;
+  drawH: number;
+  offsetX: number;
+  offsetY: number;
+  image: HTMLImageElement;
+  stageRef: React.RefObject<Konva.Stage | null>;
+  filtersState: FiltersState;
+};
+
+function CanvasWithFilters({
+  stageW,
+  stageH,
+  drawW,
+  drawH,
+  offsetX,
+  offsetY,
+  image,
+  stageRef,
+  filtersState,
+}: CanvasProps) {
+  const imageRef = useRef<Konva.Image>(null);
+
+  const activeFilters = useMemo(() => {
+    const list = [];
+    if (filtersState.blurRadius > 0) list.push(Konva.Filters.Blur);
+    if (filtersState.brightness !== 0) list.push(Konva.Filters.Brighten);
+    if (filtersState.contrast !== 0) list.push(Konva.Filters.Contrast);
+    if (filtersState.enhance > 0) list.push(Konva.Filters.Enhance);
+    if (filtersState.noise > 0) list.push(Konva.Filters.Noise);
+    if (filtersState.pixelSize >= 1) list.push(Konva.Filters.Pixelate);
+    if (filtersState.threshold > 0) list.push(Konva.Filters.Threshold);
+    if (filtersState.levels > 0) list.push(Konva.Filters.Posterize);
+    if (
+      filtersState.red !== 0 ||
+      filtersState.green !== 0 ||
+      filtersState.blue !== 0 ||
+      filtersState.alpha !== 1
+    )
+      list.push(Konva.Filters.RGBA);
+    if (
+      filtersState.hue !== 0 ||
+      filtersState.saturation !== 0 ||
+      filtersState.luminance !== 0
+    )
+      list.push(Konva.Filters.HSL);
+    if (
+      filtersState.hue !== 0 ||
+      filtersState.saturation !== 0 ||
+      filtersState.value !== 0
+    )
+      list.push(Konva.Filters.HSV);
+    return list;
+  }, [filtersState]);
+
+  useEffect(() => {
+    const node = imageRef.current;
+    if (!node) return;
+    if (activeFilters.length > 0) {
+      // cache to enable filters
+      node.cache();
+      node.getLayer()?.batchDraw();
+    } else {
+      node.clearCache();
+      node.getLayer()?.batchDraw();
+    }
+  }, [activeFilters]);
+
+  const konvaImage = (
+    <Image
+      ref={imageRef}
+      image={image}
+      width={drawW}
+      height={drawH}
+      x={offsetX}
+      y={offsetY}
+      // Filters
+      filters={activeFilters}
+      // Blur
+      blurRadius={filtersState.blurRadius}
+      // Brightness / Contrast / Enhance
+      brightness={filtersState.brightness}
+      contrast={filtersState.contrast}
+      enhance={filtersState.enhance}
+      // Noise / Pixelate / Threshold / Posterize
+      noise={filtersState.noise}
+      pixelSize={Math.max(0, Math.floor(filtersState.pixelSize))}
+      threshold={filtersState.threshold}
+      levels={filtersState.levels}
+      // RGBA
+      red={filtersState.red}
+      green={filtersState.green}
+      blue={filtersState.blue}
+      alpha={filtersState.alpha}
+      // HSL / HSV
+      hue={filtersState.hue}
+      saturation={filtersState.saturation}
+      luminance={filtersState.luminance}
+      value={filtersState.value}
+    />
+  );
+
+  return (
+    <Stage width={stageW} height={stageH} ref={stageRef}>
+      <Layer>{konvaImage}</Layer>
+    </Stage>
   );
 }

@@ -12,6 +12,8 @@ const URLImage = ({
     return null;
   }
 
+  // react-konva Image is a canvas node, not an <img>
+  // eslint-disable-next-line jsx-a11y/alt-text
   return <Image image={image} {...rest} />;
 };
 
