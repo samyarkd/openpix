@@ -1,10 +1,48 @@
 'use client';
 
+import React from 'react';
 import { useFilters } from '~/components/filters-context';
 import { EditorSlider } from './editor-slider';
 
 export default function EnhanceTab() {
   const { filters, setFilters } = useFilters();
+
+  // Stable callbacks per control
+  const onEnhance = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, enhance: v })), [setFilters]);
+  const onBrightness = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, brightness: v })), [setFilters]);
+  const onContrast = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, contrast: v })), [setFilters]);
+  const onBlur = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, blurRadius: v })), [setFilters]);
+  const onNoise = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, noise: v })), [setFilters]);
+  const onPixelSize = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, pixelSize: v })), [setFilters]);
+  const onThreshold = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, threshold: v })), [setFilters]);
+  const onLevels = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, levels: v })), [setFilters]);
+  const onRed = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, red: v })), [setFilters]);
+  const onGreen = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, green: v })), [setFilters]);
+  const onBlue = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, blue: v })), [setFilters]);
+  const onAlpha = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, alpha: v })), [setFilters]);
+  const onHue = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, hue: v })), [setFilters]);
+  const onSaturation = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, saturation: v })), [setFilters]);
+  const onLuminance = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, luminance: v })), [setFilters]);
+  const onValue = React.useCallback(([v]: number[]) => setFilters((s) => ({ ...s, value: v })), [setFilters]);
+
+  // Stable value arrays so EditorSlider props remain referentially equal
+  const enhanceVal = React.useMemo(() => [filters.enhance], [filters.enhance]);
+  const brightnessVal = React.useMemo(() => [filters.brightness], [filters.brightness]);
+  const contrastVal = React.useMemo(() => [filters.contrast], [filters.contrast]);
+  const blurVal = React.useMemo(() => [filters.blurRadius], [filters.blurRadius]);
+  const noiseVal = React.useMemo(() => [filters.noise], [filters.noise]);
+  const pixelSizeVal = React.useMemo(() => [filters.pixelSize], [filters.pixelSize]);
+  const thresholdVal = React.useMemo(() => [filters.threshold], [filters.threshold]);
+  const levelsVal = React.useMemo(() => [filters.levels], [filters.levels]);
+  const redVal = React.useMemo(() => [filters.red], [filters.red]);
+  const greenVal = React.useMemo(() => [filters.green], [filters.green]);
+  const blueVal = React.useMemo(() => [filters.blue], [filters.blue]);
+  const alphaVal = React.useMemo(() => [filters.alpha], [filters.alpha]);
+  const hueVal = React.useMemo(() => [filters.hue], [filters.hue]);
+  const saturationVal = React.useMemo(() => [filters.saturation], [filters.saturation]);
+  const luminanceVal = React.useMemo(() => [filters.luminance], [filters.luminance]);
+  const valueVal = React.useMemo(() => [filters.value], [filters.value]);
+
   return (
     <div className="p-3 flex flex-col gap-6">
       {/* Enhance */}
@@ -14,8 +52,8 @@ export default function EnhanceTab() {
         min={0}
         max={1}
         step={0.01}
-        value={[filters.enhance]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, enhance: v }))}
+        value={enhanceVal}
+        onValueChange={onEnhance}
       />
 
       {/* Brightness */}
@@ -25,8 +63,8 @@ export default function EnhanceTab() {
         min={-1}
         max={1}
         step={0.01}
-        value={[filters.brightness]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, brightness: v }))}
+        value={brightnessVal}
+        onValueChange={onBrightness}
       />
 
       {/* Contrast */}
@@ -36,8 +74,8 @@ export default function EnhanceTab() {
         min={-100}
         max={100}
         step={1}
-        value={[filters.contrast]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, contrast: v }))}
+        value={contrastVal}
+        onValueChange={onContrast}
       />
 
       {/* Blur */}
@@ -47,8 +85,8 @@ export default function EnhanceTab() {
         min={0}
         max={50}
         step={1}
-        value={[filters.blurRadius]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, blurRadius: v }))}
+        value={blurVal}
+        onValueChange={onBlur}
       />
 
       {/* Noise */}
@@ -58,8 +96,8 @@ export default function EnhanceTab() {
         min={0}
         max={1}
         step={0.01}
-        value={[filters.noise]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, noise: v }))}
+        value={noiseVal}
+        onValueChange={onNoise}
       />
 
       {/* Pixelate */}
@@ -69,8 +107,8 @@ export default function EnhanceTab() {
         min={0}
         max={50}
         step={1}
-        value={[filters.pixelSize]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, pixelSize: v }))}
+        value={pixelSizeVal}
+        onValueChange={onPixelSize}
       />
 
       {/* Threshold */}
@@ -80,8 +118,8 @@ export default function EnhanceTab() {
         min={0}
         max={1}
         step={0.01}
-        value={[filters.threshold]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, threshold: v }))}
+        value={thresholdVal}
+        onValueChange={onThreshold}
       />
 
       {/* Posterize levels */}
@@ -91,8 +129,8 @@ export default function EnhanceTab() {
         min={0}
         max={1}
         step={0.01}
-        value={[filters.levels]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, levels: v }))}
+        value={levelsVal}
+        onValueChange={onLevels}
       />
 
       {/* RGBA */}
@@ -102,8 +140,8 @@ export default function EnhanceTab() {
         min={0}
         max={255}
         step={1}
-        value={[filters.red]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, red: v }))}
+        value={redVal}
+        onValueChange={onRed}
       />
       <EditorSlider
         id="green"
@@ -111,8 +149,8 @@ export default function EnhanceTab() {
         min={0}
         max={255}
         step={1}
-        value={[filters.green]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, green: v }))}
+        value={greenVal}
+        onValueChange={onGreen}
       />
       <EditorSlider
         id="blue"
@@ -120,8 +158,8 @@ export default function EnhanceTab() {
         min={0}
         max={255}
         step={1}
-        value={[filters.blue]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, blue: v }))}
+        value={blueVal}
+        onValueChange={onBlue}
       />
       <EditorSlider
         id="alpha"
@@ -129,8 +167,8 @@ export default function EnhanceTab() {
         min={0}
         max={1}
         step={0.01}
-        value={[filters.alpha]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, alpha: v }))}
+        value={alphaVal}
+        onValueChange={onAlpha}
       />
 
       {/* HSL */}
@@ -140,8 +178,8 @@ export default function EnhanceTab() {
         min={-180}
         max={180}
         step={1}
-        value={[filters.hue]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, hue: v }))}
+        value={hueVal}
+        onValueChange={onHue}
       />
       <EditorSlider
         id="saturation"
@@ -149,8 +187,8 @@ export default function EnhanceTab() {
         min={-2}
         max={2}
         step={0.01}
-        value={[filters.saturation]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, saturation: v }))}
+        value={saturationVal}
+        onValueChange={onSaturation}
       />
       <EditorSlider
         id="luminance"
@@ -158,8 +196,8 @@ export default function EnhanceTab() {
         min={-1}
         max={1}
         step={0.01}
-        value={[filters.luminance]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, luminance: v }))}
+        value={luminanceVal}
+        onValueChange={onLuminance}
       />
 
       {/* HSV Value */}
@@ -169,8 +207,8 @@ export default function EnhanceTab() {
         min={0}
         max={10}
         step={0.2}
-        value={[filters.value]}
-        onValueChange={([v]) => setFilters((s) => ({ ...s, value: v }))}
+        value={valueVal}
+        onValueChange={onValue}
       />
     </div>
   );
