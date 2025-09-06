@@ -269,12 +269,22 @@ export default function Home() {
         <ImageDropZone onSelect={(url) => setImageUrl(url)} />
       )}
       <div className="absolute bottom-2 right-2 z-20 flex items-center gap-2">
-        <Button size="sm" variant="outline" onClick={handleDownload}>
+        <Button
+          size="sm"
+          variant="outline"
+          className="backdrop-blur-2xl"
+          onClick={handleDownload}
+        >
           <DownloadIcon className="mr-2" /> Export
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="outline" aria-label="Export options">
+            <Button
+              size="sm"
+              variant="outline"
+              aria-label="Export options"
+              className="backdrop-blur-2xl"
+            >
               <SlidersHorizontalIcon />
             </Button>
           </DropdownMenuTrigger>

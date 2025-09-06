@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 
 import {
   BrushIcon,
@@ -7,6 +7,7 @@ import {
   SmileIcon,
   TypeIcon,
 } from 'lucide-react';
+import { EditorTab, useEditorTab } from '~/components/editor-tab-context';
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +20,6 @@ import EnhanceTab from './editor-tabs/EnhanceTab';
 import StickerTab from './editor-tabs/StickerTab';
 import TypeTab from './editor-tabs/TypeTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { useEditorTab } from '~/components/editor-tab-context';
 
 export function AppSidebar() {
   const { activeTab, setActiveTab } = useEditorTab();
@@ -28,7 +28,11 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="scrollbar-hidden">
+            <Tabs
+              value={activeTab}
+              onValueChange={(tab) => setActiveTab(tab as EditorTab)}
+              className="scrollbar-hidden"
+            >
               {/* Tab Bar */}
               <TabsList className="w-full">
                 <TabsTrigger className="cursor-pointer" value="enhance">
