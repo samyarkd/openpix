@@ -177,8 +177,8 @@ export default function Home() {
       : 1;
   const drawW = Math.round(imgW * scale);
   const drawH = Math.round(imgH * scale);
-  const offsetX = pad + Math.round((stageW - drawW) / 2);
-  const offsetY = pad + Math.round((stageH - drawH) / 2);
+  const offsetX = Math.round((stageW - drawW) / 2);
+  const offsetY = Math.round((stageH - drawH) / 2);
 
   useEffect(() => {
     if (drawW && drawH && crop.width === 0 && crop.height === 0) {
@@ -457,8 +457,8 @@ function CanvasWithFilters({
       <Image
         ref={imageRef}
         image={image}
-        width={drawW - (activeTab === 'crop' ? 20 : 0)}
-        height={drawH - (activeTab === 'crop' ? 20 : 0)}
+        width={drawW}
+        height={drawH}
         x={centerX}
         y={centerY}
         offsetX={drawW / 2}
