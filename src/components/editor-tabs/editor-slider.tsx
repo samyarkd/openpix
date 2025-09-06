@@ -1,14 +1,15 @@
-import React from 'react';
+import { Undo2Icon } from 'lucide-react';
+import React, { ReactNode } from 'react';
 import { Label } from '~/components/ui/label';
 import { Slider } from '~/components/ui/slider';
 
 interface EditorSliderProps {
   id: string;
-  label: string;
+  label: ReactNode;
   max?: number;
   min?: number;
   step?: number;
-  defaultValue?: number[];
+  defaultValue: number[];
   value?: number[];
   onValueChange?: (value: number[]) => void;
   className?: string;
@@ -20,7 +21,7 @@ function EditorSliderImpl({
   max = 100,
   min = 0,
   step = 1,
-  defaultValue = [50],
+  defaultValue,
   value,
   onValueChange,
   className = '',
@@ -60,13 +61,25 @@ function EditorSliderImpl({
 
   return (
     <div className={`flex flex-col gap-3 ${className}`}>
-      <Label htmlFor={id}>{label}</Label>
+      <Label htmlFor={id} className="flex items-center gap-2">
+        {label}
+
+        {defaultValue[0] !== value?.[0] && (
+          <Undo2Icon
+            className="cursor-pointer"
+            size={14}
+            onClick={() => {
+              handleChange(defaultValue);
+            }}
+          />
+        )}
+      </Label>
       <Slider
         id={id}
         max={max}
         min={min}
         step={step}
-        title={label}
+        title={id}
         defaultValue={defaultValue}
         value={value}
         onValueChange={handleChange}

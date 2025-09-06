@@ -1,3 +1,5 @@
+ 'use client';
+
 import {
   BrushIcon,
   CropIcon,
@@ -17,14 +19,16 @@ import EnhanceTab from './editor-tabs/EnhanceTab';
 import StickerTab from './editor-tabs/StickerTab';
 import TypeTab from './editor-tabs/TypeTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { useEditorTab } from '~/components/editor-tab-context';
 
 export function AppSidebar() {
+  const { activeTab, setActiveTab } = useEditorTab();
   return (
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <Tabs defaultValue="enhance" className="scrollbar-hidden">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="scrollbar-hidden">
               {/* Tab Bar */}
               <TabsList className="w-full">
                 <TabsTrigger className="cursor-pointer" value="enhance">

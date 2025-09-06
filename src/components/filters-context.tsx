@@ -36,7 +36,7 @@ export const defaultFilters: FiltersState = {
   red: 0,
   green: 0,
   blue: 0,
-  alpha: 0,
+  alpha: 1,
   hue: 0,
   saturation: 0,
   luminance: 0,

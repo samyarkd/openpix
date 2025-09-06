@@ -1,10 +1,16 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { AppSidebar } from '~/components/app-sidebar';
+import { CropProvider } from '~/components/crop-context';
+import { EditorTabProvider } from '~/components/editor-tab-context';
+import { FiltersProvider } from '~/components/filters-context';
 import { ModeToggle } from '~/components/mode-toggle';
 import { ThemeProvider } from '~/components/theme-provider';
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar';
-import { FiltersProvider } from '~/components/filters-context';
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from '~/components/ui/sidebar';
 import './globals.css';
 
 const geistSans = Geist({
@@ -35,18 +41,22 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark">
           <SidebarProvider>
             <FiltersProvider>
-              <AppSidebar />
-              <SidebarInset className="relative flex-1 min-h-svh">
-              {/* Navbar */}
-              <nav className="flex items-start justify-between absolute top-0 z-10 right-0 left-0">
-                <SidebarTrigger className="cursor-pointer m-1 backdrop-blur-3xl" />
-                <div className="p-1">
-                  <ModeToggle />
-                </div>
-              </nav>
-              {/* Content */}
-              {children}
-              </SidebarInset>
+              <CropProvider>
+                <EditorTabProvider>
+                  <AppSidebar />
+                  <SidebarInset className="relative flex-1 min-h-svh">
+                    {/* Navbar */}
+                    <nav className="flex items-start justify-between absolute top-0 z-10 right-0 left-0">
+                      <SidebarTrigger className="cursor-pointer m-1 backdrop-blur-3xl" />
+                      <div className="p-1">
+                        <ModeToggle />
+                      </div>
+                    </nav>
+                    {/* Content */}
+                    {children}
+                  </SidebarInset>
+                </EditorTabProvider>
+              </CropProvider>
             </FiltersProvider>
           </SidebarProvider>
         </ThemeProvider>
