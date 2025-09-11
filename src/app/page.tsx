@@ -44,7 +44,7 @@ export default function Home() {
   const [image] = useImage(imageUrl, {
     crossOrigin: 'anonymous',
   });
-  const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [container, setContainer] = useState({ width: 0, height: 0 });
   const stageRef = useRef<Konva.Stage>(null);
   const { open } = useSidebar();
@@ -86,9 +86,10 @@ export default function Home() {
   }, [imageUrl]);
 
   const measure = useCallback(() => {
-    if (!ref.current) return;
-    const w = ref.current.clientWidth || 0;
-    const h = ref.current.clientHeight || 0;
+    if (!containerRef.current) return;
+    const w = containerRef.current.clientWidth || 0;
+    const h = containerRef.current.clientWidth || 0;
+
     setContainer((prev) =>
       prev.width !== w || prev.height !== h ? { width: w, height: h } : prev
     );
@@ -98,9 +99,9 @@ export default function Home() {
     measure();
 
     let ro: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined' && ref.current) {
+    if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
       ro = new ResizeObserver(() => measure());
-      ro.observe(ref.current);
+      ro.observe(containerRef.current);
     }
 
     // Debounced window resize handler
@@ -166,25 +167,33 @@ export default function Home() {
 
   const imgW = image?.width || 0;
   const imgH = image?.height || 0;
+
   // Shrink drawing area when cropping to allow 20px padding each side
-  const pad = activeTab === 'crop' ? 20 : 0;
+  const cropPad = activeTab === 'crop' ? 24 : 0;
+
   // Snap to whole pixels to avoid subpixel blur
-  const stageW = Math.max(0, Math.round(container.width)) - pad * 2;
-  const stageH = Math.max(0, Math.round(container.height)) - pad * 2;
+  const containerW = container.width;
+  const containerH = container.height;
+
+  const scaleW = containerW / imgW;
+  const scaleH = containerH / imgH;
   const scale =
-    imgW && imgH && stageW && stageH
-      ? Math.min(stageW / imgW, stageH / imgH)
-      : 1;
-  const drawW = Math.round(imgW * scale);
-  const drawH = Math.round(imgH * scale);
-  const offsetX = Math.round((stageW - drawW) / 2);
-  const offsetY = Math.round((stageH - drawH) / 2);
+    imgW && imgH && containerW && containerH ? Math.min(scaleW, scaleH) : 1;
+
+  const stageW = imgW * scale;
+  const stageH = imgH * scale;
+
+  const drawW = stageW - cropPad * scaleH;
+  const drawH = stageH - cropPad * scaleW;
+
+  const offsetX = (stageW - drawW) / 2;
+  const offsetY = (stageH - drawH) / 2;
 
   useEffect(() => {
     if (drawW && drawH && crop.width === 0 && crop.height === 0) {
       setCrop({
-        x: offsetX,
-        y: offsetY,
+        x: 0,
+        y: 0,
         width: drawW,
         height: drawH,
         rotation: 0,
@@ -245,11 +254,12 @@ export default function Home() {
   return (
     <div
       data-sidebar-open={open}
-      className="absolute inset-0 overflow-hidden isolate"
-      ref={ref}
+      className="absolute inset-0 isolate flex items-center justify-center"
+      ref={containerRef}
     >
       {/* canvas */}
       <GridPattern className="z-0" />
+      {/* Image */}
       {image ? (
         <CanvasWithFilters
           stageW={stageW}
@@ -266,8 +276,10 @@ export default function Home() {
           setCrop={setCrop}
         />
       ) : (
+        // Drop zone
         <ImageDropZone onSelect={(url) => setImageUrl(url)} />
       )}
+      {/* Export Options */}
       <div className="absolute bottom-2 right-2 z-20 flex items-center gap-2">
         <Button
           size="sm"
@@ -495,53 +507,51 @@ function CanvasWithFilters({
   })();
 
   return (
-    <div className={activeTab === 'crop' ? 'p-5' : undefined}>
-      <Stage
-        width={stageW}
-        height={stageH}
-        ref={stageRef}
-        key={`${stageW}x${stageH}`}
-      >
-        <Layer listening={false}>{konvaImage}</Layer>
-        {activeTab === 'crop' && (
-          <Layer id="crop-layer">
-            <Rect
-              ref={rectRef}
-              {...crop}
-              rotation={undefined}
-              width={crop.width + (activeTab === 'crop' ? 20 : 0)}
-              height={crop.height + (activeTab === 'crop' ? 20 : 0)}
-              stroke="white"
-              strokeWidth={2}
-              dash={[4, 4]}
-              draggable
-              onDragEnd={(e) =>
-                setCrop({ ...crop, x: e.target.x(), y: e.target.y() })
-              }
-              onTransformEnd={() => {
-                const node = rectRef.current;
-                if (!node) return;
-                const scaleX = node.scaleX();
-                const scaleY = node.scaleY();
-                node.scaleX(1);
-                node.scaleY(1);
-                setCrop({
-                  rotation: crop.rotation,
-                  x: node.x(),
-                  y: node.y(),
-                  width: Math.max(5, node.width() * scaleX),
-                  height: Math.max(5, node.height() * scaleY),
-                });
-              }}
-            />
-            <Transformer
-              ref={trRef}
-              rotateEnabled={false}
-              boundBoxFunc={(oldBox, newBox) => newBox}
-            />
-          </Layer>
-        )}
-      </Stage>
-    </div>
+    <Stage
+      width={stageW}
+      height={stageH}
+      ref={stageRef}
+      key={`${stageW}x${stageH}`}
+    >
+      <Layer listening={false}>{konvaImage}</Layer>
+      {activeTab === 'crop' && (
+        <Layer id="crop-layer">
+          <Rect
+            ref={rectRef}
+            {...crop}
+            rotation={undefined}
+            width={crop.width + (activeTab === 'crop' ? 20 : 0)}
+            height={crop.height + (activeTab === 'crop' ? 20 : 0)}
+            stroke="white"
+            strokeWidth={2}
+            dash={[4, 4]}
+            draggable
+            onDragEnd={(e) =>
+              setCrop({ ...crop, x: e.target.x(), y: e.target.y() })
+            }
+            onTransformEnd={() => {
+              const node = rectRef.current;
+              if (!node) return;
+              const scaleX = node.scaleX();
+              const scaleY = node.scaleY();
+              node.scaleX(1);
+              node.scaleY(1);
+              setCrop({
+                rotation: crop.rotation,
+                x: node.x(),
+                y: node.y(),
+                width: Math.max(5, node.width() * scaleX),
+                height: Math.max(5, node.height() * scaleY),
+              });
+            }}
+          />
+          <Transformer
+            ref={trRef}
+            rotateEnabled={false}
+            boundBoxFunc={(oldBox, newBox) => newBox}
+          />
+        </Layer>
+      )}
+    </Stage>
   );
 }
