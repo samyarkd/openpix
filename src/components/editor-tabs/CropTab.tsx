@@ -1,25 +1,18 @@
 'use client';
 
-import { useCrop } from '~/components/crop-context';
+import { useShallow } from 'zustand/shallow';
 import { Button } from '~/components/ui/button';
-import { EditorSlider } from './editor-slider';
+import { useEditorStore } from '~/store/editor.store';
 
 export default function CropTab() {
-  const { crop, setCrop, resetCrop } = useCrop();
+  const { resetCrop } = useEditorStore(
+    useShallow((state) => ({ resetCrop: state.resetCrop }))
+  );
+
   return (
     <div className="flex flex-col gap-3 p-3">
-      <EditorSlider
-        id="rotation"
-        label="Rotation"
-        min={-180}
-        max={180}
-        step={1}
-        value={[crop.rotation]}
-        onValueChange={([val]) => setCrop({ ...crop, rotation: val })}
-        defaultValue={[0]}
-      />
       <div className="flex justify-center">
-        <Button variant="outline" onClick={resetCrop}>
+        <Button className="w-full" variant="outline" onClick={resetCrop}>
           Reset crop
         </Button>
       </div>

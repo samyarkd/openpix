@@ -8,7 +8,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useCrop } from '~/components/crop-context';
 import { useEditorTab } from '~/components/editor-tab-context';
 
 import { useShallow } from 'zustand/shallow';
@@ -18,32 +17,28 @@ import { useFilters } from '~/components/filters-context';
 import ImageDropZone from '~/components/image-input';
 import { GridPattern } from '~/components/magicui/grid-pattern';
 import { useSidebar } from '~/components/ui/sidebar';
-import { useImage } from '~/hooks/use-image';
 import { useEditorStore } from '~/store/editor.store';
 
 export default function Home() {
-  const [imageUrl, setImageUrl] = useState('');
-  const [image] = useImage(imageUrl, {
-    crossOrigin: 'anonymous',
-  });
   const containerRef = useRef<HTMLDivElement>(null);
   const [container, setContainer] = useState({ width: 0, height: 0 });
   const stageRef = useRef<Konva.Stage>(null);
   const { open } = useSidebar();
   const { filters } = useFilters();
 
-  const { setCanvasDate, setImage } = useEditorStore(
+  const { image, stageW, setCanvasDate, addImage } = useEditorStore(
     useShallow((state) => ({
+      stageW: state.stageW,
+      image: state.image,
+      //
       setCanvasDate: state.setCanvasDate,
-      setImage: state.setImage,
+      addImage: state.addImage,
     }))
   );
 
   // Defer filter updates so slider UI stays responsive while image updates later
   const deferredFilters = useDeferredValue(filters);
 
-  // Get crop state from context and active tab
-  const { crop, setCrop, resetCrop } = useCrop();
   const { activeTab } = useEditorTab();
 
   // Detect scrubbing (frequent filter changes) to lower preview quality
@@ -57,15 +52,6 @@ export default function Home() {
       if (tid) clearTimeout(tid);
     };
   }, [filters]);
-
-  // Revoke old object URLs to avoid leaks
-  useEffect(() => {
-    return () => {
-      if (imageUrl && imageUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(imageUrl);
-      }
-    };
-  }, [imageUrl]);
 
   const measure = useCallback(() => {
     if (!containerRef.current) return;
@@ -163,11 +149,11 @@ export default function Home() {
     const scale =
       imgW && imgH && containerW && containerH ? Math.min(scaleW, scaleH) : 1;
 
-    const stageW = imgW * scale;
-    const stageH = imgH * scale;
+    const stageW = imgW * scale - cropPad * scaleH;
+    const stageH = imgH * scale - cropPad * scaleW;
 
-    const drawW = stageW - cropPad * scaleH;
-    const drawH = stageH - cropPad * scaleW;
+    const drawW = stageW;
+    const drawH = stageH;
 
     const offsetX = (stageW - drawW) / 2;
     const offsetY = (stageH - drawH) / 2;
@@ -182,20 +168,6 @@ export default function Home() {
       stageH,
       stageW,
     });
-
-    if (image) {
-      setImage(image);
-    }
-
-    if (drawW && drawH && crop.width === 0 && crop.height === 0) {
-      setCrop({
-        x: 0,
-        y: 0,
-        width: drawW,
-        height: drawH,
-        rotation: 0,
-      });
-    }
   }, [
     activeTab,
     image,
@@ -204,34 +176,29 @@ export default function Home() {
     image?.height,
     container.height,
     container.width,
-    // crop
-    crop.width,
-    crop.height,
   ]);
 
   return (
     <div
       data-sidebar-open={open}
-      className="absolute inset-0 isolate flex items-center justify-center"
+      className={'absolute inset-0 isolate flex items-center justify-center'}
       ref={containerRef}
     >
       {/* canvas */}
       <GridPattern className="z-0" />
 
       {/* Image */}
-      {image && (
+      {image && stageW && (
         <CanvasGround
           image={image}
           stageRef={stageRef}
           filtersState={deferredFilters}
           preview={isScrubbing}
-          crop={crop}
-          setCrop={setCrop}
         />
       )}
 
       {/* Drop zone */}
-      {!image && <ImageDropZone onSelect={(url) => setImageUrl(url)} />}
+      {!image && <ImageDropZone onSelect={addImage} />}
 
       {/* Export Options */}
       <ExportOptions stageRef={stageRef} />

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { loadImage } from '~/lib/load-image';
+
 export type ImageStatus = 'idle' | 'loading' | 'loaded' | 'failed';
 
 export interface UseImageOptions {
@@ -37,40 +39,25 @@ export function useImage(
     }
 
     setStatus('loading');
-    const img = new window.Image();
-    if (typeof crossOrigin !== 'undefined') img.crossOrigin = crossOrigin;
-    if (typeof referrerPolicy !== 'undefined')
-      img.referrerPolicy = referrerPolicy;
 
-    const onLoad = async () => {
-      try {
-        if (decode && 'decode' in img && typeof img.decode === 'function') {
-          // Some browsers may throw on decode for SVGs; ignore and proceed
-          await img.decode().catch(() => void 0);
-        }
-      } finally {
-        if (active.current) {
+    let cancelled = false;
+    loadImage(src, { crossOrigin, referrerPolicy, decode })
+      .then((img) => {
+        if (!cancelled && active.current) {
           setImage(img);
           setStatus('loaded');
         }
-      }
-    };
-
-    const onError = () => {
-      if (active.current) {
-        setImage(null);
-        setStatus('failed');
-      }
-    };
-
-    img.addEventListener('load', onLoad);
-    img.addEventListener('error', onError);
-    img.src = src;
+      })
+      .catch(() => {
+        if (!cancelled && active.current) {
+          setImage(null);
+          setStatus('failed');
+        }
+      });
 
     return () => {
+      cancelled = true;
       active.current = false;
-      img.removeEventListener('load', onLoad);
-      img.removeEventListener('error', onError);
     };
   }, [src, crossOrigin, referrerPolicy, decode]);
 
