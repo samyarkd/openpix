@@ -18,14 +18,12 @@ import { useEditorStore } from '~/store/editor.store';
 
 const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
   const stageRef = props.stageRef;
-  const { image, imgW, offsetX, offsetY, drawW, drawH } = useEditorStore(
+  const { image, stageH, stageW, frameCrop } = useEditorStore(
     useShallow((state) => ({
-      image: state.image,
-      imgW: state.imgW,
-      offsetX: state.offsetX,
-      offsetY: state.offsetY,
-      drawW: state.drawW,
-      drawH: state.drawH,
+      image: state.rootImage,
+      stageW: state.stageW,
+      stageH: state.stageH,
+      frameCrop: state.frameCrop,
     }))
   );
 
@@ -54,16 +52,17 @@ const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
       const ext = exportMime.split('/')[1];
       const quality = exportMime === 'image/png' ? 1 : 0.92;
       // Adjust pixelRatio for selected crop area
-      const pixelRatio = drawW > 0 ? (imgW * desiredScale) / drawW : 1;
+      const pixelRatio = stageW > 0 ? (stageW * desiredScale) / stageH : 1;
+      console.log('stageW', 'stageH');
 
       await downloadStage(stage, `export.${ext}`, {
         mimeType: exportMime,
         pixelRatio,
         quality,
-        x: offsetX,
-        y: offsetY,
-        width: drawW,
-        height: drawH,
+        x: 0,
+        y: 0,
+        width: frameCrop?.width ?? stageW,
+        height: frameCrop?.height ?? stageH,
       });
     } catch {
       // no-op
@@ -71,7 +70,7 @@ const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
     // Restore crop rectangle
     if (cropLayer) cropLayer.show();
     stage.batchDraw();
-  }, [exportScale, exportMime, offsetX, offsetY, drawW, drawH, imgW]);
+  }, [exportScale, exportMime, stageW, stageH]);
 
   // Keyboard: Ctrl/Cmd+S to export when an image is loaded
   useEffect(() => {

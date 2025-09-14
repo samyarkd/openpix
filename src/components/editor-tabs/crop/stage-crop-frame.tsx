@@ -1,12 +1,11 @@
 'use client';
 
-import { useEditorTab } from '~/components/editor-tab-context';
-
+import { useActiveTab } from '~/hooks/use-active-tab';
 import { cn } from '~/lib/utils';
 import { useCropFrame } from './use-crop-frame';
 
 const StageCropFrame = () => {
-  const { activeTab } = useEditorTab();
+  const { activeTab } = useActiveTab();
   const { crop, handleMouseDown } = useCropFrame();
 
   if (!crop) {

@@ -16,7 +16,7 @@ export const useCropFrame = () => {
     stageH,
   } = useEditorStore(
     useShallow((state) => ({
-      crop: state.crop,
+      crop: state.frameCrop,
       setCrop: state.setCrop,
       stageW: state.stageW,
       stageH: state.stageH,

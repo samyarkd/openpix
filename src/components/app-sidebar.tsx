@@ -7,13 +7,14 @@ import {
   SmileIcon,
   TypeIcon,
 } from 'lucide-react';
-import { EditorTab, useEditorTab } from '~/components/editor-tab-context';
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
 } from '~/components/ui/sidebar';
+import { useActiveTab } from '~/hooks/use-active-tab';
+import { EditorTab } from '~/store/editor.store';
 import BrushTab from './editor-tabs/BrushTab';
 import CropTab from './editor-tabs/CropTab';
 import EnhanceTab from './editor-tabs/EnhanceTab';
@@ -22,7 +23,8 @@ import TypeTab from './editor-tabs/TypeTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
 export function AppSidebar() {
-  const { activeTab, setActiveTab } = useEditorTab();
+  const { activeTab, setActiveTab } = useActiveTab();
+
   return (
     <Sidebar>
       <SidebarContent>
