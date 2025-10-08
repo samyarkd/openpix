@@ -1,8 +1,13 @@
 import { castDraft } from 'immer';
+import { loadImage } from '~/lib/load-image';
 import type { SliceCreator } from '../editor.types';
 import { defaultFilters, type ImageItem } from '../editor.types';
-import { computeCropPads, computeOverlayDimensions, computeRootDimensions, computeStageScale } from '../utils/geometry';
-import { loadImage } from '~/lib/load-image';
+import {
+  computeCropPads,
+  computeOverlayDimensions,
+  computeRootDimensions,
+  computeStageScale,
+} from '../utils/geometry';
 
 export const createImagesSlice: SliceCreator<{
   images: ImageItem[];
@@ -38,9 +43,26 @@ export const createImagesSlice: SliceCreator<{
           const containerH = state.container.height;
           const containerW = state.container.width;
 
-          const { stageScaleX, stageScaleY, stageScale } = computeStageScale(containerW, containerH, imgW, imgH);
-          const { cropPadX, cropPadY } = computeCropPads(state.activeTab, stageScaleX, stageScaleY);
-          const { stageW, stageH, drawW, drawH } = computeRootDimensions(imgW, imgH, stageScale, cropPadX, cropPadY);
+          const { stageScaleX, stageScaleY, stageScale } = computeStageScale(
+            containerW,
+            containerH,
+            imgW,
+            imgH
+          );
+
+          const { cropPadX, cropPadY } = computeCropPads(
+            state.activeTab,
+            stageScaleX,
+            stageScaleY
+          );
+
+          const { stageW, stageH, drawW, drawH } = computeRootDimensions(
+            imgW,
+            imgH,
+            stageScale,
+            cropPadX,
+            cropPadY
+          );
 
           imgObj.drawW = drawW;
           imgObj.drawH = drawH;
@@ -54,9 +76,19 @@ export const createImagesSlice: SliceCreator<{
 
           state.rootImage = castDraft(imgObj);
         } else {
-          const { cropPadX, cropPadY } = computeCropPads(state.activeTab, state.stageScaleX, state.stageScaleY);
+          const { cropPadX, cropPadY } = computeCropPads(
+            state.activeTab,
+            state.stageScaleX,
+            state.stageScaleY
+          );
           // other new images will be scaled down
-          const { drawW, drawH } = computeOverlayDimensions(imgW, imgH, state.stageScale, cropPadX, cropPadY);
+          const { drawW, drawH } = computeOverlayDimensions(
+            imgW,
+            imgH,
+            state.stageScale,
+            cropPadX,
+            cropPadY
+          );
           imgObj.drawW = drawW;
           imgObj.drawH = drawH;
         }
@@ -74,7 +106,9 @@ export const createImagesSlice: SliceCreator<{
     set((state) => {
       const image = state.images[state.images.findIndex((f) => f.id === id)];
       if (!image) return;
-      for (const key of Object.keys(filters) as (keyof ImageItem['filters'])[]) {
+      for (const key of Object.keys(
+        filters
+      ) as (keyof ImageItem['filters'])[]) {
         image.filters[key] = filters[key] ?? image.filters[key];
       }
     });

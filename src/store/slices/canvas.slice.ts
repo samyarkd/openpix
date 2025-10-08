@@ -1,6 +1,10 @@
 import type { SliceCreator } from '../editor.types';
-import { CROP_SIZE, type CanvasSlice } from '../editor.types';
-import { computeCropPads, computeRootDimensions, computeStageScale } from '../utils/geometry';
+import { type CanvasSlice } from '../editor.types';
+import {
+  computeCropPads,
+  computeRootDimensions,
+  computeStageScale,
+} from '../utils/geometry';
 
 export const createCanvasSlice: SliceCreator<CanvasSlice> = (set, get) => ({
   // CanvasData
@@ -12,6 +16,9 @@ export const createCanvasSlice: SliceCreator<CanvasSlice> = (set, get) => ({
 
   container: { height: 0, width: 0 },
 
+  /**
+   * Runs every time stage or container size changes
+   */
   handleResize: () => {
     set((state) => {
       for (let idx = 0; idx < state.images.length; idx++) {
@@ -19,13 +26,29 @@ export const createCanvasSlice: SliceCreator<CanvasSlice> = (set, get) => ({
         const imgW = image.img?.width || 0;
         const imgH = image.img?.height || 0;
 
+        // Root image should fit the stage
         if (idx === 0) {
           const containerH = state.container.height;
           const containerW = state.container.width;
 
-          const { stageScaleX, stageScaleY, stageScale } = computeStageScale(containerW, containerH, imgW, imgH);
-          const { cropPadX, cropPadY } = computeCropPads(state.activeTab, stageScaleX, stageScaleY);
-          const { stageW, stageH, drawW, drawH } = computeRootDimensions(imgW, imgH, stageScale, cropPadX, cropPadY);
+          const { stageScaleX, stageScaleY, stageScale } = computeStageScale(
+            containerW,
+            containerH,
+            imgW,
+            imgH
+          );
+          const { cropPadX, cropPadY } = computeCropPads(
+            state.activeTab,
+            stageScaleX,
+            stageScaleY
+          );
+          const { stageW, stageH, drawW, drawH } = computeRootDimensions(
+            imgW,
+            imgH,
+            stageScale,
+            cropPadX,
+            cropPadY
+          );
 
           // set root data
           state.stageScale = stageScale;
@@ -44,7 +67,11 @@ export const createCanvasSlice: SliceCreator<CanvasSlice> = (set, get) => ({
             image.drawH = drawH;
           }
         } else {
-          const { cropPadX, cropPadY } = computeCropPads(state.activeTab, state.stageScaleX, state.stageScaleY);
+          const { cropPadX, cropPadY } = computeCropPads(
+            state.activeTab,
+            state.stageScaleX,
+            state.stageScaleY
+          );
           // other new images will be scaled down
           if (image.drawW && image.drawH) {
             image.drawW = imgW * (state.stageScale / 2) - cropPadY;

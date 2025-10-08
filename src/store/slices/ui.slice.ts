@@ -1,5 +1,4 @@
-import type { SliceCreator } from '../editor.types';
-import type { EditorTab } from '../editor.types';
+import type { EditorTab, SliceCreator } from '../editor.types';
 
 export const createUiSlice: SliceCreator<{
   activeTab: EditorTab;

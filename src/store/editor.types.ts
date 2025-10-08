@@ -86,9 +86,7 @@ export type CanvasSlice = CanvasData & {
 
 export type CropSlice = {
   frameCrop: Crop | null;
-  isCropping: boolean;
   setCrop: (crop: Crop) => void;
-  setCropping: (value: boolean) => void;
   resetCrop: () => void;
 };
 
@@ -109,7 +107,7 @@ export type EditorStore = CanvasSlice & CropSlice & ImagesSlice & UiSlice;
 // Zustand middleware tuple used by slices
 export type WithMiddleware = [
   ['zustand/devtools', never],
-  ['zustand/immer', never]
+  ['zustand/immer', never],
 ];
 
 // Helper type for slices
