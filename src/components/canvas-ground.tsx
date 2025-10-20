@@ -36,15 +36,18 @@ function CanvasGround({ stageRef }: CanvasProps) {
     y2: 0,
   });
 
-  const { frameCrop, images, stageH, stageW } = useEditorStore(
+  const { frameCrop, images, stageH, stageW, widgets } = useEditorStore(
     useShallow((state) => ({
       stageW: state.stageW,
       stageH: state.stageH,
       frameCrop: state.frameCrop,
       // image
       images: state.images,
+      widgets: state.widgets,
     }))
   );
+  const updateImageTransform = useEditorStore((s) => s.updateImageTransform);
+  const updateWidgetTransform = useEditorStore((s) => s.updateWidgetTransform);
 
   // Keep Konva stage size in sync
   useEffect(() => {
@@ -171,22 +174,37 @@ function CanvasGround({ stageRef }: CanvasProps) {
   // Optional: handlers for drag/transform end — currently only visual.
   // If you want transforms persisted to your editor store, call your store setters here.
   const handleDragEnd: KonvaNodeEvents['onDragEnd'] = (e) => {
-    // e.target is the transformed Group
-    // you can update the store here if needed
+    const node = e.target as Konva.Node;
+    const id = node.id();
+    const selectable = findSelectableAncestor(node) ?? node;
+    const x = selectable.x();
+    const y = selectable.y();
+    // persist for either image or widget by id
+    const isImage = images.some((img) => img.id === id);
+    if (isImage) updateImageTransform(id, { x, y });
+    else updateWidgetTransform(id, { x, y });
   };
 
   const handleTransformEnd: KonvaNodeEvents['onTransformEnd'] = (e) => {
-    // e.target is the transformed Group
-    // you can update the store with new x,y,scale,rotation,width,height if needed
-    // example:
-    // const node = e.target;
-    // const id = node.id();
-    // const scaleX = node.scaleX();
-    // const scaleY = node.scaleY();
-    // node.scaleX(1); node.scaleY(1);
-    // const width = (node.width ? node.width() : 0) * scaleX;
-    // const height = (node.height ? node.height() : 0) * scaleY;
-    // updateEditorStoreImage(id, { x: node.x(), y: node.y(), width, height, rotation: node.rotation() })
+    const node = e.target as Konva.Node;
+    const id = node.id();
+    const selectable = findSelectableAncestor(node) ?? node;
+
+    const scaleX = selectable.scaleX();
+    const scaleY = selectable.scaleY();
+    const rotation = selectable.rotation();
+    const x = selectable.x();
+    const y = selectable.y();
+
+    // After persisting scale, normalize node scale back to 1 to avoid compounding
+    selectable.scaleX(1);
+    selectable.scaleY(1);
+
+    const isImage = images.some((img) => img.id === id);
+    if (isImage) updateImageTransform(id, { x, y, scaleX, scaleY, rotation });
+    else updateWidgetTransform(id, { x, y, scaleX, scaleY, rotation });
+
+    selectable.getLayer()?.batchDraw();
   };
 
   return (
@@ -215,6 +233,11 @@ function CanvasGround({ stageRef }: CanvasProps) {
               key={image.id}
               name="selectable"
               draggable
+              x={image.x}
+              y={image.y}
+              scaleX={image.scaleX}
+              scaleY={image.scaleY}
+              rotation={image.rotation}
               ref={(node) => {
                 if (node) imageRefs.current.set(image.id, node);
                 else imageRefs.current.delete(image.id);
@@ -226,23 +249,34 @@ function CanvasGround({ stageRef }: CanvasProps) {
             </Group>
           ))}
 
-          {/* Example Text as selectable as well (optional) */}
-          <Group
-            id="text-sample"
-            name="selectable"
-            draggable
-            ref={(node) => {
-              if (node) imageRefs.current.set('text-sample', node);
-              else imageRefs.current.delete('text-sample');
-            }}
-          >
-            <Text
-              text="Sample text"
-              fontSize={24}
-              align="center"
-              fill={'#fff'}
-            />
-          </Group>
+          {/* Dynamically rendered widgets (nodes) */}
+          {widgets.map((w) => {
+            if (w.type === 'text') {
+              return (
+                <Group
+                  name="selectable"
+                  key={w.id}
+                  id={w.id}
+                  draggable
+                  x={w.x}
+                  y={w.y}
+                  scaleX={w.scaleX}
+                  scaleY={w.scaleY}
+                  rotation={w.rotation}
+                  ref={(node) => {
+                    if (node) imageRefs.current.set(w.id, node);
+                    else imageRefs.current.delete(w.id);
+                  }}
+                  onDragEnd={handleDragEnd}
+                  onTransformEnd={handleTransformEnd}
+                >
+                  <Text text={w.text} fontSize={w.fontSize} fill={w.fill} />
+                </Group>
+              );
+            } else {
+              return null;
+            }
+          })}
         </Layer>
 
         <Layer>

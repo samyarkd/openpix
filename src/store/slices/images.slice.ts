@@ -1,22 +1,15 @@
-import { castDraft } from 'immer';
-import { loadImage } from '~/lib/load-image';
-import type { SliceCreator } from '../editor.types';
-import { defaultFilters, type ImageItem } from '../editor.types';
+import { castDraft } from 'immer'
+import { loadImage } from '~/lib/load-image'
+import type { ImagesSlice, SliceCreator } from '../editor.types'
+import { defaultFilters, type ImageItem } from '../editor.types'
 import {
   computeCropPads,
   computeOverlayDimensions,
   computeRootDimensions,
   computeStageScale,
-} from '../utils/geometry';
+} from '../utils/geometry'
 
-export const createImagesSlice: SliceCreator<{
-  images: ImageItem[];
-  rootImage: ImageItem | null;
-  activeImageId: string | null;
-  addImage: (imgUrl: string) => void;
-  setImageFilters: (id: string, filters: Partial<ImageItem['filters']>) => void;
-  setActiveImage: (id: string | null) => void;
-}> = (set, get) => ({
+export const createImagesSlice: SliceCreator<ImagesSlice> = (set) => ({
   images: [],
   rootImage: null,
   activeImageId: null,
@@ -34,6 +27,11 @@ export const createImagesSlice: SliceCreator<{
         filters: defaultFilters,
         drawW: 0,
         drawH: 0,
+        x: 0,
+        y: 0,
+        scaleX: 1,
+        scaleY: 1,
+        rotation: 0,
       };
 
       set((state) => {
@@ -117,6 +115,19 @@ export const createImagesSlice: SliceCreator<{
   setActiveImage: (id) => {
     set((state) => {
       state.activeImageId = id ?? null;
+    });
+  },
+
+  updateImageTransform: (id, transform) => {
+    set((state) => {
+      const idx = state.images.findIndex((img) => img.id === id);
+      if (idx === -1) return;
+      const image = state.images[idx];
+      image.x = transform.x ?? image.x;
+      image.y = transform.y ?? image.y;
+      image.scaleX = transform.scaleX ?? image.scaleX;
+      image.scaleY = transform.scaleY ?? image.scaleY;
+      image.rotation = transform.rotation ?? image.rotation;
     });
   },
 });

@@ -8,6 +8,14 @@ export interface EditorTabContextType {
   setActiveTab: (tab: EditorTab) => void;
 }
 
+export type Transform = {
+  x: number;
+  y: number;
+  scaleX: number;
+  scaleY: number;
+  rotation: number;
+};
+
 // Filters
 export type FiltersState = {
   // Common adjustable filters
@@ -54,7 +62,7 @@ export type ImageItem = {
   drawW: number;
   drawH: number;
   filters: FiltersState;
-};
+} & Transform;
 
 export type Crop = {
   x: number;
@@ -97,12 +105,38 @@ export type ImagesSlice = {
   addImage: (imgUrl: string) => void;
   setImageFilters: (id: string, filters: Partial<FiltersState>) => void;
   setActiveImage: (id: string | null) => void;
+  updateImageTransform: (id: string, transform: Partial<Transform>) => void;
+};
+
+export type Widget = (
+  | {
+      type: 'text';
+      text: string;
+      fill: `#${string}`;
+      fontSize: number;
+    }
+  | { type: 'sticker' }
+) & {
+  id: string;
+} & Transform;
+
+export type WidgetType = Widget['type'];
+
+export type WidgetsSlice = {
+  widgets: Widget[];
+  addWidget: (w: Omit<Widget, 'id'>) => void;
+  removeWidget: (wId: string) => void;
+  updateWidgetTransform: (id: string, transform: Partial<Transform>) => void;
 };
 
 export type UiSlice = EditorTabContextType;
 
-// Full store
-export type EditorStore = CanvasSlice & CropSlice & ImagesSlice & UiSlice;
+// ------------ Full store ------------------
+export type EditorStore = CanvasSlice &
+  CropSlice &
+  ImagesSlice &
+  UiSlice &
+  WidgetsSlice;
 
 // Zustand middleware tuple used by slices
 export type WithMiddleware = [

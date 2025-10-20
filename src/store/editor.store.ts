@@ -7,6 +7,7 @@ import { createCanvasSlice } from './slices/canvas.slice';
 import { createCropSlice } from './slices/crop.slice';
 import { createImagesSlice } from './slices/images.slice';
 import { createUiSlice } from './slices/ui.slice';
+import { createWidgetSlice } from './slices/widgets.slice';
 
 export const useEditorStore = create<EditorStore>()(
   devtools(
@@ -15,6 +16,7 @@ export const useEditorStore = create<EditorStore>()(
       ...createImagesSlice(...a),
       ...createCropSlice(...a),
       ...createUiSlice(...a),
+      ...createWidgetSlice(...a),
     }))
   )
 );
