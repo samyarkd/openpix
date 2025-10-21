@@ -1,4 +1,5 @@
 import type { StateCreator } from 'zustand';
+import { HexColor } from '../../types';
 
 // Editor Tabs
 export type EditorTab = 'enhance' | 'crop' | 'type' | 'brush' | 'sticker';
@@ -108,23 +109,50 @@ export type ImagesSlice = {
   updateImageTransform: (id: string, transform: Partial<Transform>) => void;
 };
 
-export type Widget = (
-  | {
-      type: 'text';
-      text: string;
-      fill: `#${string}`;
-      fontSize: number;
-    }
-  | { type: 'sticker' }
-) & {
+export type WidgetBase = Transform & {
   id: string;
-} & Transform;
+};
+
+export type TextWidget = WidgetBase & {
+  type: 'text';
+  text: string;
+  fill: HexColor;
+  align: 'left' | 'center' | 'right';
+  fontStyle?: 'italic' | 'bold' | 'normal' | 'italic bold';
+  fontFamily?: string;
+  textDecoration?: 'line-through' | 'underline';
+  fontSize: number;
+};
+
+export type StickerWidget = WidgetBase & {
+  type: 'sticker';
+};
+
+export type Widget = TextWidget | StickerWidget;
+
+export type WidgetMap = {
+  text: TextWidget;
+  sticker: StickerWidget;
+};
 
 export type WidgetType = Widget['type'];
 
+// New widget input typed by discriminant
+export type NewWidget<T extends WidgetType> = Omit<
+  WidgetMap[T],
+  'id' | keyof Transform
+> &
+  Partial<Transform>;
+
 export type WidgetsSlice = {
+  selectedWidgetId: string | null;
+  setSelectedWidgetId: (wId: string | null) => void;
   widgets: Widget[];
-  addWidget: (w: Omit<Widget, 'id'>) => void;
+  addWidget: <T extends WidgetType>(w: NewWidget<T>) => void;
+  updateWidget: <T extends WidgetType>(
+    wId: string,
+    w: Partial<NewWidget<T>>
+  ) => void;
   removeWidget: (wId: string) => void;
   updateWidgetTransform: (id: string, transform: Partial<Transform>) => void;
 };

@@ -11,6 +11,7 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set) => ({
       fontSize: 72,
       fill: '#880808',
       id: crypto.randomUUID(),
+      align: 'left',
       x: 0,
       y: 0,
       scaleX: 1,
@@ -18,6 +19,14 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set) => ({
       rotation: 0,
     },
   ],
+
+  selectedWidgetId: null,
+  setSelectedWidgetId: (wId) => {
+    set((state) => {
+      state.selectedWidgetId = wId;
+    });
+  },
+
   /**
    * This function will add a new widget to the widgets
    * @param w Widget data
@@ -31,6 +40,23 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set) => ({
       if (typeof created.scaleY !== 'number') created.scaleY = 1;
       if (typeof created.rotation !== 'number') created.rotation = 0;
       state.widgets.push(created);
+    });
+  },
+  /**
+   * Update the widget data
+   * @param wId Widget Id
+   * @param w widget data
+   */
+  updateWidget: (wId, w) => {
+    set((state) => {
+      const widgetIndex = state.widgets.findIndex((v) => v.id === wId);
+      if (widgetIndex === -1) {
+        return;
+      }
+
+      // Safely update the widget with proper type handling
+      const currentWidget = state.widgets[widgetIndex];
+      state.widgets[widgetIndex] = { ...currentWidget, ...w };
     });
   },
   /**

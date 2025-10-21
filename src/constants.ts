@@ -1,0 +1,21 @@
+// List of fonts can be used for texts
+export const googleFonts = [
+  'Audiowide',
+  'BBH Sans Bartle',
+  'BBH Sans Bogle',
+  'BBH Sans Hegarty',
+  'Borel',
+  'Delius Unicase',
+  'Doto',
+  'Iceland',
+  'Meow Script',
+  'Open Sans',
+  'Pacifico',
+  'Playfair Display',
+  'Playwrite DE SAS',
+  'Quicksand',
+  'Roboto',
+  'Sour Gummy',
+  'Ubuntu',
+  'UnifrakturMaguntia',
+];

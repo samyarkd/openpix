@@ -22,12 +22,26 @@ type CanvasProps = {
 };
 
 function CanvasGround({ stageRef }: CanvasProps) {
+  const { frameCrop, images, stageH, stageW, widgets, setSelectedWidget } =
+    useEditorStore(
+      useShallow((state) => ({
+        stageW: state.stageW,
+        stageH: state.stageH,
+        frameCrop: state.frameCrop,
+        // image
+        images: state.images,
+        widgets: state.widgets,
+        // active widget
+        setSelectedWidget: state.setSelectedWidgetId,
+      }))
+    );
+
   const trRef = useRef<Konva.Transformer | null>(null);
 
   const imageRefs = useRef<Map<string, Konva.Group | Konva.Node>>(new Map());
   const isSelecting = useRef(false);
 
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const selectedIds = useRef<string[]>([]);
   const [selectionRect, setSelectionRect] = useState({
     visible: false,
     x1: 0,
@@ -36,42 +50,35 @@ function CanvasGround({ stageRef }: CanvasProps) {
     y2: 0,
   });
 
-  const { frameCrop, images, stageH, stageW, widgets } = useEditorStore(
-    useShallow((state) => ({
-      stageW: state.stageW,
-      stageH: state.stageH,
-      frameCrop: state.frameCrop,
-      // image
-      images: state.images,
-      widgets: state.widgets,
-    }))
-  );
   const updateImageTransform = useEditorStore((s) => s.updateImageTransform);
   const updateWidgetTransform = useEditorStore((s) => s.updateWidgetTransform);
 
   // Keep Konva stage size in sync
   useEffect(() => {
     const stage = stageRef.current as Konva.Stage | null;
-    if (stage) {
-      if (typeof stageW === 'number') stage.width(stageW);
-      if (typeof stageH === 'number') stage.height(stageH);
-      stage.batchDraw();
+    if (!stage) {
+      return;
     }
+    if (typeof stageW === 'number') stage.width(stageW);
+    if (typeof stageH === 'number') stage.height(stageH);
+    stage.batchDraw();
   }, [stageW, stageH, stageRef]);
 
   // Update transformer nodes when selection changes
-  useEffect(() => {
+  const handleSelectionChange = useCallback(() => {
     if (!trRef.current) return;
-    if (selectedIds.length) {
-      const nodes = selectedIds
+    if (selectedIds.current.length) {
+      setSelectedWidget(selectedIds.current[0]);
+      const nodes = selectedIds.current
         .map((id) => imageRefs.current.get(id))
         .filter(Boolean) as Konva.Node[];
       trRef.current.nodes(nodes);
     } else {
       trRef.current.nodes([]);
+      setSelectedWidget(null);
     }
     trRef.current.getLayer()?.batchDraw();
-  }, [selectedIds]);
+  }, []);
 
   // Helpers to find selectable ancestor (Group with name 'selectable')
   const findSelectableAncestor = useCallback((node: Konva.Node | null) => {
@@ -139,7 +146,8 @@ function CanvasGround({ stageRef }: CanvasProps) {
       }
     });
 
-    setSelectedIds(selected);
+    selectedIds.current = selected;
+    handleSelectionChange();
   };
 
   const handleStageClick: KonvaNodeEvents['onClick'] = (e) => {
@@ -149,7 +157,9 @@ function CanvasGround({ stageRef }: CanvasProps) {
     const stage = e.target.getStage();
     if (e.target === stage) {
       // clicked empty area -> clear selection
-      setSelectedIds([]);
+      selectedIds.current = [];
+
+      handleSelectionChange();
       return;
     }
 
@@ -160,15 +170,18 @@ function CanvasGround({ stageRef }: CanvasProps) {
     const clickedId = selectable.id();
     const metaPressed =
       e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey || e.evt.altKey;
-    const isSelected = selectedIds.includes(clickedId);
+    const isSelected = selectedIds.current.includes(clickedId);
 
     if (!metaPressed && !isSelected) {
-      setSelectedIds([clickedId]);
+      selectedIds.current = [clickedId];
     } else if (metaPressed && isSelected) {
-      setSelectedIds((s) => s.filter((id) => id !== clickedId));
+      selectedIds.current = selectedIds.current.filter(
+        (id) => id !== clickedId
+      );
     } else if (metaPressed && !isSelected) {
-      setSelectedIds((s) => [...s, clickedId]);
+      selectedIds.current = [...selectedIds.current, clickedId];
     }
+    handleSelectionChange();
   };
 
   // Optional: handlers for drag/transform end — currently only visual.
@@ -270,7 +283,15 @@ function CanvasGround({ stageRef }: CanvasProps) {
                   onDragEnd={handleDragEnd}
                   onTransformEnd={handleTransformEnd}
                 >
-                  <Text text={w.text} fontSize={w.fontSize} fill={w.fill} />
+                  <Text
+                    align={w.align}
+                    text={w.text}
+                    fontSize={w.fontSize}
+                    fill={w.fill}
+                    fontStyle={w.fontStyle}
+                    fontFamily={w.fontFamily}
+                    textDecoration={w.textDecoration}
+                  />
                 </Group>
               );
             } else {
