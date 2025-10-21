@@ -12,7 +12,7 @@ import { googleFonts } from '~/constants';
 import { useEditorStore } from '~/store/editor.store';
 import { TextWidget } from '~/store/editor.types';
 
-const FontsList = (props: { widget: TextWidget }) => {
+export const FontsList = (props: { widget: TextWidget }) => {
   const id = useId();
   const updateWidget = useEditorStore(
     useShallow((state) => state.updateWidget)
@@ -45,5 +45,3 @@ const FontsList = (props: { widget: TextWidget }) => {
     </div>
   );
 };
-
-export default FontsList;
