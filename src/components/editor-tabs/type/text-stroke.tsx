@@ -41,7 +41,6 @@ const TextStroke = (props: {
             });
           }}
           value={props.strokeColor}
-          className="h-10 p-1"
         />
       </div>
     </div>

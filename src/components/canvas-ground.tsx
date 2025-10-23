@@ -293,11 +293,11 @@ function CanvasGround({ stageRef }: CanvasProps) {
                     textDecoration={w.textDecoration}
                     stroke={w.strokeColor}
                     strokeWidth={w.strokeWidth}
-                    shadowEnabled
-                    shadowBlur={10}
-                    shadowColor="black"
-                    shadowOffsetX={10}
-                    shadowOffsetY={20}
+                    shadowEnabled={w.shadowEnabled}
+                    shadowBlur={w.shadowBlur}
+                    shadowColor={w.shadowColor}
+                    shadowOffsetX={w.shadowOffsetX}
+                    shadowOffsetY={w.shadowOffsetY}
                   />
                 </Group>
               );

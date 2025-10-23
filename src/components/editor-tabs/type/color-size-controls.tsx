@@ -47,7 +47,6 @@ export function ColorSizeControls({
             });
           }}
           value={fill}
-          className="h-10 p-1"
         />
       </div>
     </div>

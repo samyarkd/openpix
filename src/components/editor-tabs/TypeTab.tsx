@@ -8,6 +8,7 @@ import { ContentSection } from './type/content-section';
 import { FontsList } from './type/fonts-list';
 import { RemoveButton } from './type/remove-button';
 import { StyleControls } from './type/style-controls';
+import TextShadow from './type/text-shadow';
 import TextStroke from './type/text-stroke';
 
 function EditSelectedText() {
@@ -42,6 +43,14 @@ function EditSelectedText() {
         strokeColor={widget.strokeColor}
         strokeWidth={widget.strokeWidth}
         widgetId={widget.id}
+      />
+      <TextShadow
+        widgetId={widget.id}
+        shadowBlur={widget.shadowBlur}
+        shadowColor={widget.shadowColor}
+        shadowEnabled={widget.shadowEnabled}
+        shadowOffsetX={widget.shadowOffsetX}
+        shadowOffsetY={widget.shadowOffsetY}
       />
     </div>
   );
