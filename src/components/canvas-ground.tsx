@@ -291,6 +291,13 @@ function CanvasGround({ stageRef }: CanvasProps) {
                     fontStyle={w.fontStyle}
                     fontFamily={w.fontFamily}
                     textDecoration={w.textDecoration}
+                    stroke={w.strokeColor}
+                    strokeWidth={w.strokeWidth}
+                    shadowEnabled
+                    shadowBlur={10}
+                    shadowColor="black"
+                    shadowOffsetX={10}
+                    shadowOffsetY={20}
                   />
                 </Group>
               );

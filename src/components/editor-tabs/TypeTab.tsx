@@ -8,6 +8,7 @@ import { ContentSection } from './type/content-section';
 import { FontsList } from './type/fonts-list';
 import { RemoveButton } from './type/remove-button';
 import { StyleControls } from './type/style-controls';
+import TextStroke from './type/text-stroke';
 
 function EditSelectedText() {
   const { selectedId, widget } = useEditorStore(
@@ -37,6 +38,11 @@ function EditSelectedText() {
         />
       </div>
       <FontsList widget={widget} />
+      <TextStroke
+        strokeColor={widget.strokeColor}
+        strokeWidth={widget.strokeWidth}
+        widgetId={widget.id}
+      />
     </div>
   );
 }

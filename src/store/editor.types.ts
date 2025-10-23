@@ -117,11 +117,21 @@ export type TextWidget = WidgetBase & {
   type: 'text';
   text: string;
   fill: HexColor;
+  fontSize: number;
   align: 'left' | 'center' | 'right';
+  // font
   fontStyle?: 'italic' | 'bold' | 'normal' | 'italic bold';
   fontFamily?: string;
   textDecoration?: 'line-through' | 'underline';
-  fontSize: number;
+  // stroke
+  strokeColor?: HexColor;
+  strokeWidth?: number;
+  // shadow
+  shadowEnabled?: boolean;
+  shadowBlur?: number;
+  shadowColor?: HexColor;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
 };
 
 export type StickerWidget = WidgetBase & {
