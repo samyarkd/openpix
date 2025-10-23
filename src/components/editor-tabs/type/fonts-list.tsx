@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { memo, useId } from 'react';
 import { useShallow } from 'zustand/shallow';
 import { Label } from '~/components/ui/label';
 import {
@@ -12,7 +12,7 @@ import { googleFonts } from '~/constants';
 import { useEditorStore } from '~/store/editor.store';
 import { TextWidget } from '~/store/editor.types';
 
-export const FontsList = (props: { widget: TextWidget }) => {
+export const FontsList = memo((props: { widget: TextWidget }) => {
   const id = useId();
   const updateWidget = useEditorStore(
     useShallow((state) => state.updateWidget)
@@ -44,4 +44,5 @@ export const FontsList = (props: { widget: TextWidget }) => {
       </Select>
     </div>
   );
-};
+});
+FontsList.displayName = 'FontsList';

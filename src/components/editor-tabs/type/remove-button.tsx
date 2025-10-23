@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { Button } from '~/components/ui/button';
 import { useEditorStore } from '~/store/editor.store';
 
-export function RemoveButton({ widgetId }: { widgetId: string }) {
+export const RemoveButton = memo(({ widgetId }: { widgetId: string }) => {
   const removeWidget = useEditorStore((state) => state.removeWidget);
 
   return (
@@ -16,4 +17,5 @@ export function RemoveButton({ widgetId }: { widgetId: string }) {
       Remove
     </Button>
   );
-}
+});
+RemoveButton.displayName = 'RemoveButton';
