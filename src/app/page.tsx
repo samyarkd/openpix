@@ -114,9 +114,7 @@ export default function Home() {
     <div
       id="canvas-container-page"
       data-sidebar-open={open}
-      className={
-        'absolute inset-0 isolate flex items-center justify-center bg-amber-600'
-      }
+      className={'absolute inset-0 isolate flex items-center justify-center'}
       ref={containerRef}
     >
       {/* canvas */}
