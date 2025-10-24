@@ -127,11 +127,11 @@ export type TextWidget = WidgetBase & {
   strokeColor?: HexColor;
   strokeWidth?: number;
   // shadow
-  shadowEnabled?: boolean;
-  shadowBlur?: number;
-  shadowColor?: HexColor;
-  shadowOffsetX?: number;
-  shadowOffsetY?: number;
+  shadowEnabled: boolean;
+  shadowBlur: number;
+  shadowColor: HexColor;
+  shadowOffsetX: number;
+  shadowOffsetY: number;
 };
 
 export type StickerWidget = WidgetBase & {
@@ -155,8 +155,11 @@ export type NewWidget<T extends WidgetType> = Omit<
   Partial<Transform>;
 
 export type WidgetsSlice = {
+  // Widgets
   selectedWidgetId: string | null;
-  setSelectedWidgetId: (wId: string | null) => void;
+  selectedWidgetIds: string[];
+  setSelectedWidgetIds: (wIds: string[]) => void;
+
   widgets: Widget[];
   addWidget: <T extends WidgetType>(w: NewWidget<T>) => void;
   updateWidget: <T extends WidgetType>(

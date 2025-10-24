@@ -17,13 +17,20 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set) => ({
       scaleX: 1,
       scaleY: 1,
       rotation: 0,
+      shadowColor: '#000000',
+      shadowOffsetX: 3,
+      shadowEnabled: false,
+      shadowOffsetY: 3,
+      shadowBlur: 5,
     },
   ],
-
+  // Selected widgets
   selectedWidgetId: null,
-  setSelectedWidgetId: (wId) => {
+  selectedWidgetIds: [],
+  setSelectedWidgetIds: (wIds) => {
     set((state) => {
-      state.selectedWidgetId = wId;
+      state.selectedWidgetIds = wIds;
+      state.selectedWidgetId = wIds.length ? wIds[0] : null;
     });
   },
 

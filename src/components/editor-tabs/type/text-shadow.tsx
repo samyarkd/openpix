@@ -38,7 +38,7 @@ const TextShadow = memo(
                 <Input
                   id="text-shadow-blur"
                   type="number"
-                  value={props.shadowBlur || 0}
+                  value={props.shadowBlur}
                   onChange={(e) => {
                     updateWidget<'text'>(props.widgetId, {
                       shadowBlur: Number(e.target.value),
@@ -66,7 +66,7 @@ const TextShadow = memo(
                 <Input
                   id="text-shadow-offset-x"
                   type="number"
-                  value={props.shadowOffsetX || 0}
+                  value={props.shadowOffsetX}
                   onChange={(e) => {
                     updateWidget<'text'>(props.widgetId, {
                       shadowOffsetX: Number(e.target.value),
@@ -79,7 +79,7 @@ const TextShadow = memo(
                 <Input
                   id="text-shadow-offset-y"
                   type="number"
-                  value={props.shadowOffsetY || 0}
+                  value={props.shadowOffsetY}
                   onChange={(e) => {
                     updateWidget<'text'>(props.widgetId, {
                       shadowOffsetY: Number(e.target.value),

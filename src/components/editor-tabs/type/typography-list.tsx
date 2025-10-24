@@ -21,6 +21,11 @@ const TypographyList = memo(() => {
             fill: '#000000',
             fontSize: 48,
             align: 'left',
+            shadowColor: '#000000',
+            shadowOffsetX: 3,
+            shadowOffsetY: 3,
+            shadowEnabled: false,
+            shadowBlur: 5,
           })
         }
         className="w-full"

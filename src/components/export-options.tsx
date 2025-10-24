@@ -38,6 +38,7 @@ const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
   const handleDownload = useCallback(async () => {
     const stage = stageRef.current;
     if (!stage) return;
+
     // Hide crop rectangle for export
     const cropLayer = stage.findOne('#crop-layer');
     if (cropLayer) cropLayer.hide();

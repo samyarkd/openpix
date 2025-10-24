@@ -22,26 +22,36 @@ type CanvasProps = {
 };
 
 function CanvasGround({ stageRef }: CanvasProps) {
-  const { frameCrop, images, stageH, stageW, widgets, setSelectedWidget } =
-    useEditorStore(
-      useShallow((state) => ({
-        stageW: state.stageW,
-        stageH: state.stageH,
-        frameCrop: state.frameCrop,
-        // image
-        images: state.images,
-        widgets: state.widgets,
-        // active widget
-        setSelectedWidget: state.setSelectedWidgetId,
-      }))
-    );
+  const {
+    frameCrop,
+    images,
+    stageH,
+    stageW,
+    widgets,
+    setSelectedWidgetIds,
+    selectedWidgetIds,
+    activeTab,
+  } = useEditorStore(
+    useShallow((state) => ({
+      activeTab: state.activeTab,
+      stageW: state.stageW,
+      stageH: state.stageH,
+      frameCrop: state.frameCrop,
+      // image
+      images: state.images,
+      widgets: state.widgets,
+
+      // selectedWIdgets
+      selectedWidgetIds: state.selectedWidgetIds,
+      setSelectedWidgetIds: state.setSelectedWidgetIds,
+    }))
+  );
 
   const trRef = useRef<Konva.Transformer | null>(null);
 
-  const imageRefs = useRef<Map<string, Konva.Group | Konva.Node>>(new Map());
+  const groupRefs = useRef<Map<string, Konva.Group | Konva.Node>>(new Map());
   const isSelecting = useRef(false);
 
-  const selectedIds = useRef<string[]>([]);
   const [selectionRect, setSelectionRect] = useState({
     visible: false,
     x1: 0,
@@ -52,6 +62,23 @@ function CanvasGround({ stageRef }: CanvasProps) {
 
   const updateImageTransform = useEditorStore((s) => s.updateImageTransform);
   const updateWidgetTransform = useEditorStore((s) => s.updateWidgetTransform);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        !stageRef.current?.container().contains(e.target as Node) &&
+        e.target instanceof HTMLElement &&
+        e.target.id === 'canvas-container-page'
+      ) {
+        setSelectedWidgetIds([]);
+      }
+    }
+    // Clear selection when clicking outside of canvas
+    window.addEventListener('click', handleClick);
+    return () => {
+      window.removeEventListener('click', handleClick);
+    };
+  }, []);
 
   // Keep Konva stage size in sync
   useEffect(() => {
@@ -65,20 +92,19 @@ function CanvasGround({ stageRef }: CanvasProps) {
   }, [stageW, stageH, stageRef]);
 
   // Update transformer nodes when selection changes
-  const handleSelectionChange = useCallback(() => {
+  useEffect(() => {
     if (!trRef.current) return;
-    if (selectedIds.current.length) {
-      setSelectedWidget(selectedIds.current[0]);
-      const nodes = selectedIds.current
-        .map((id) => imageRefs.current.get(id))
+    if (selectedWidgetIds.length) {
+      const nodes = selectedWidgetIds
+        .map((id) => groupRefs.current.get(id))
         .filter(Boolean) as Konva.Node[];
       trRef.current.nodes(nodes);
     } else {
       trRef.current.nodes([]);
-      setSelectedWidget(null);
     }
-    trRef.current.getLayer()?.batchDraw();
-  }, []);
+
+    trRef.current?.getLayer()?.batchDraw();
+  }, [selectedWidgetIds, activeTab]);
 
   // Helpers to find selectable ancestor (Group with name 'selectable')
   const findSelectableAncestor = useCallback((node: Konva.Node | null) => {
@@ -135,7 +161,7 @@ function CanvasGround({ stageRef }: CanvasProps) {
 
     // find nodes intersecting with selection box
     const selected: string[] = [];
-    imageRefs.current.forEach((node, id) => {
+    groupRefs.current.forEach((node, id) => {
       try {
         const rect = node.getClientRect(); // accounts for rotation/scale
         if (Konva.Util.haveIntersection(selBox, rect)) {
@@ -146,8 +172,7 @@ function CanvasGround({ stageRef }: CanvasProps) {
       }
     });
 
-    selectedIds.current = selected;
-    handleSelectionChange();
+    setSelectedWidgetIds(selected);
   };
 
   const handleStageClick: KonvaNodeEvents['onClick'] = (e) => {
@@ -157,9 +182,8 @@ function CanvasGround({ stageRef }: CanvasProps) {
     const stage = e.target.getStage();
     if (e.target === stage) {
       // clicked empty area -> clear selection
-      selectedIds.current = [];
+      setSelectedWidgetIds([]);
 
-      handleSelectionChange();
       return;
     }
 
@@ -170,18 +194,15 @@ function CanvasGround({ stageRef }: CanvasProps) {
     const clickedId = selectable.id();
     const metaPressed =
       e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey || e.evt.altKey;
-    const isSelected = selectedIds.current.includes(clickedId);
+    const isSelected = selectedWidgetIds.includes(clickedId);
 
     if (!metaPressed && !isSelected) {
-      selectedIds.current = [clickedId];
+      setSelectedWidgetIds([clickedId]);
     } else if (metaPressed && isSelected) {
-      selectedIds.current = selectedIds.current.filter(
-        (id) => id !== clickedId
-      );
+      setSelectedWidgetIds(selectedWidgetIds.filter((id) => id !== clickedId));
     } else if (metaPressed && !isSelected) {
-      selectedIds.current = [...selectedIds.current, clickedId];
+      setSelectedWidgetIds([...selectedWidgetIds, clickedId]);
     }
-    handleSelectionChange();
   };
 
   // Optional: handlers for drag/transform end — currently only visual.
@@ -252,8 +273,8 @@ function CanvasGround({ stageRef }: CanvasProps) {
               scaleY={image.scaleY}
               rotation={image.rotation}
               ref={(node) => {
-                if (node) imageRefs.current.set(image.id, node);
-                else imageRefs.current.delete(image.id);
+                if (node) groupRefs.current.set(image.id, node);
+                else groupRefs.current.delete(image.id);
               }}
               onDragEnd={handleDragEnd}
               onTransformEnd={handleTransformEnd}
@@ -277,8 +298,8 @@ function CanvasGround({ stageRef }: CanvasProps) {
                   scaleY={w.scaleY}
                   rotation={w.rotation}
                   ref={(node) => {
-                    if (node) imageRefs.current.set(w.id, node);
-                    else imageRefs.current.delete(w.id);
+                    if (node) groupRefs.current.set(w.id, node);
+                    else groupRefs.current.delete(w.id);
                   }}
                   onDragEnd={handleDragEnd}
                   onTransformEnd={handleTransformEnd}
