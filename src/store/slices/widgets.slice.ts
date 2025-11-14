@@ -5,24 +5,28 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set) => ({
    * This list contains node that will be rendered inside the canvas
    */
   widgets: [
-    {
-      type: 'text',
-      text: 'Hello this is a test',
-      fontSize: 72,
-      fill: '#880808',
-      id: crypto.randomUUID(),
-      align: 'left',
-      x: 0,
-      y: 0,
-      scaleX: 1,
-      scaleY: 1,
-      rotation: 0,
-      shadowColor: '#000000',
-      shadowOffsetX: 3,
-      shadowEnabled: false,
-      shadowOffsetY: 3,
-      shadowBlur: 5,
-    },
+    ...(process.env.NODE_ENV === 'development'
+      ? [
+          {
+            type: 'text',
+            text: 'Hello this is a test',
+            fontSize: 72,
+            fill: '#880808',
+            id: crypto.randomUUID(),
+            align: 'left',
+            x: 0,
+            y: 0,
+            scaleX: 1,
+            scaleY: 1,
+            rotation: 0,
+            shadowColor: '#000000',
+            shadowOffsetX: 3,
+            shadowEnabled: false,
+            shadowOffsetY: 3,
+            shadowBlur: 5,
+          } as const,
+        ]
+      : []),
   ],
   // Selected widgets
   selectedWidgetId: null,
