@@ -114,11 +114,11 @@ export default function Home() {
     <div
       id="canvas-container-page"
       data-sidebar-open={open}
-      className={'absolute inset-0 isolate flex items-center justify-center'}
+      className={'absolute inset-0 isolate flex items-center justify-center '}
       ref={containerRef}
     >
       {/* canvas */}
-      <GridPattern className="z-0" />
+      {(!image || !stageW) && <GridPattern className="z-0" />}
 
       {/* Image */}
       {image && stageW && <CanvasGround stageRef={stageRef} />}

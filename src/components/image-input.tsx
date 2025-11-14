@@ -105,7 +105,7 @@ const ImageDropZone = ({ onSelect }: ImageDropZoneProps) => {
           handleClick();
         }
       }}
-      className="h-full flex items-center justify-center bg-radial from-transparent z-10 relative via-white to-white dark:via-black dark:to-black w-full"
+      className="h-full flex items-center justify-center z-10 relative  w-full"
     >
       <Button
         variant="ghost"

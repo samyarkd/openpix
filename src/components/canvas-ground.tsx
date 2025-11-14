@@ -16,6 +16,7 @@ import { useShallow } from 'zustand/shallow';
 import { useEditorStore } from '~/store/editor.store';
 import StageCropFrame from './editor-tabs/crop/stage-crop-frame';
 import ImageWithFilters from './image-with-filters';
+import { GridPattern } from './magicui/grid-pattern';
 
 type CanvasProps = {
   stageRef: React.RefObject<Konva.Stage | null>;
@@ -243,12 +244,14 @@ function CanvasGround({ stageRef }: CanvasProps) {
 
   return (
     <div
+      className="bg-background outline outline-border"
       style={{
         position: 'relative',
         width: frameCrop?.width ?? stageW,
         height: frameCrop?.height ?? stageH,
       }}
     >
+      <GridPattern width={15} height={15} />
       <Stage
         width={frameCrop?.width ?? stageW}
         height={frameCrop?.height ?? stageH}
