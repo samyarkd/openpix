@@ -7,7 +7,11 @@ import { FilterSlider } from './enhance/filter-slider';
 export default function EnhanceTab() {
   // Only subscribe to whether an active image exists to show/hide the tab
   const hasActive = useEditorStore((s) =>
-    Boolean(s.images.find((i) => i.id === s.activeImageId))
+    Boolean(
+      s.widgets
+        .filter((w) => w.type === 'image')
+        .find((i) => i.id === s.selectedWidgetId)
+    )
   );
 
   if (!hasActive)

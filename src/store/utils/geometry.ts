@@ -1,33 +1,23 @@
-import { CROP_SIZE } from '../editor.types';
-
-export type StageScale = {
-  stageScaleX: number;
-  stageScaleY: number;
-  stageScale: number;
-};
-
+/**
+ * Compute the how much we need to scale up or down the stage(canvas)
+ * to make it fit inside the container
+ * @param containerW the width of the container wrapper for the convas
+ * @param containerH the height of the container wrapper for the convas
+ * @param canvasW canvas width
+ * @param canvasH canvas height
+ */
 export function computeStageScale(
   containerW: number,
   containerH: number,
-  imgW: number,
-  imgH: number
-): StageScale {
-  const stageScaleX = containerW / (imgW || 1);
-  const stageScaleY = containerH / (imgH || 1);
-  const valid = imgW > 0 && imgH > 0 && containerW > 0 && containerH > 0;
-  const stageScale = valid ? Math.min(stageScaleX, stageScaleY) : 1;
-  return { stageScaleX, stageScaleY, stageScale };
-}
+  canvasW: number,
+  canvasH: number
+): number {
+  if (!containerW || !containerH || !canvasW || !canvasH) {
+    return 1;
+  }
 
-export function computeCropPads(
-  activeTab: 'enhance' | 'crop' | 'type' | 'brush' | 'sticker',
-  scaleX: number,
-  scaleY: number
-): { cropPadX: number; cropPadY: number } {
-  const isCrop = activeTab === 'crop';
-  const cropPadX = isCrop ? CROP_SIZE * scaleX : 0;
-  const cropPadY = isCrop ? CROP_SIZE * scaleY : 0;
-  return { cropPadX, cropPadY };
+  // Calculate the scale to fit the container while maintaining aspect ratio
+  return Math.min(containerW / canvasW, containerH / canvasH);
 }
 
 export function computeRootDimensions(
@@ -47,12 +37,9 @@ export function computeRootDimensions(
 export function computeOverlayDimensions(
   imgW: number,
   imgH: number,
-  stageScale: number,
-  cropPadX: number,
-  cropPadY: number
+  stageScale: number
 ): { drawW: number; drawH: number } {
-  // overlays are scaled down by half compared to root
-  const drawW = imgW * (stageScale / 2) - cropPadY;
-  const drawH = imgH * (stageScale / 2) - cropPadX;
+  const drawW = imgW * (stageScale / 2);
+  const drawH = imgH * (stageScale / 2);
   return { drawW, drawH };
 }

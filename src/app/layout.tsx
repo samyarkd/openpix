@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { AppSidebar } from '~/components/app-sidebar';
 import { ModeToggle } from '~/components/mode-toggle';
 import { SidebarInset, SidebarTrigger } from '~/components/ui/sidebar';
 
+import { AppSidebar } from '~/components/app-sidebar';
 import './globals.css';
 import Providers from './providers';
 

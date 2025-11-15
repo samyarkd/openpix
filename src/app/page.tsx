@@ -18,13 +18,12 @@ export default function Home() {
   const { open } = useSidebar();
 
   const { activeTab } = useActiveTab();
-  const { image, stageW, addImage, setContainer } = useEditorStore(
+  const { stageW, addImageWidget, setContainer } = useEditorStore(
     useShallow((state) => ({
       stageW: state.stageW,
-      image: state.rootImage,
       container: state.container,
       //
-      addImage: state.addImage,
+      addImageWidget: state.addImageWidget,
       setContainer: state.setContainer,
     }))
   );
@@ -118,13 +117,13 @@ export default function Home() {
       ref={containerRef}
     >
       {/* canvas */}
-      {(!image || !stageW) && <GridPattern className="z-0" />}
+      {!stageW && <GridPattern className="z-0" />}
 
       {/* Image */}
-      {image && stageW && <CanvasGround stageRef={stageRef} />}
+      {stageW && <CanvasGround stageRef={stageRef} />}
 
       {/* Drop zone */}
-      {!image && <ImageDropZone onSelect={addImage} />}
+      {!stageW && <ImageDropZone onSelect={addImageWidget} />}
 
       {/* Export Options */}
       <ExportOptions stageRef={stageRef} />

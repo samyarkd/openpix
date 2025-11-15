@@ -19,7 +19,9 @@ export function FilterSlider<K extends keyof FiltersState>(props: {
 
   // Subscribe only to the single filter numeric value
   const value = useEditorStore((s) => {
-    const img = s.images.find((i) => i.id === s.activeImageId);
+    const img = s.widgets
+      .filter((w) => w.type === 'image')
+      .find((i) => i.id === s.selectedWidgetId);
     const v = img
       ? (img.filters[filterKey] as number)
       : (defaultFilters[filterKey] as number);
@@ -29,10 +31,10 @@ export function FilterSlider<K extends keyof FiltersState>(props: {
   const handleChange = React.useCallback(
     (arr: number[]) => {
       const v = arr[0];
-      const { activeImageId, setImageFilters } = useEditorStore.getState();
-      if (activeImageId) {
+      const { selectedWidgetId, setImageFilters } = useEditorStore.getState();
+      if (selectedWidgetId) {
         startTransition(() =>
-          setImageFilters(activeImageId, {
+          setImageFilters(selectedWidgetId, {
             [filterKey]: v,
           } as Partial<FiltersState>)
         );

@@ -18,9 +18,8 @@ import { useEditorStore } from '~/store/editor.store';
 
 const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
   const stageRef = props.stageRef;
-  const { image, stageH, stageW, frameCrop } = useEditorStore(
+  const { stageH, stageW, frameCrop } = useEditorStore(
     useShallow((state) => ({
-      image: state.rootImage,
       stageW: state.stageW,
       stageH: state.stageH,
       frameCrop: state.frameCrop,
@@ -76,7 +75,6 @@ const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
   // Keyboard: Ctrl/Cmd+S to export when an image is loaded
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (!image) return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         handleDownload();
@@ -84,7 +82,7 @@ const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [image, handleDownload]);
+  }, [handleDownload]);
 
   return (
     <div className="absolute bottom-2 right-2 z-20 flex items-center gap-2">

@@ -24,11 +24,11 @@ type CanvasProps = {
 
 function CanvasGround({ stageRef }: CanvasProps) {
   const {
-    frameCrop,
-    images,
     stageH,
     stageW,
+    stageScale,
     widgets,
+
     setSelectedWidgetIds,
     selectedWidgetIds,
     activeTab,
@@ -37,9 +37,8 @@ function CanvasGround({ stageRef }: CanvasProps) {
       activeTab: state.activeTab,
       stageW: state.stageW,
       stageH: state.stageH,
-      frameCrop: state.frameCrop,
+      stageScale: state.stageScale,
       // image
-      images: state.images,
       widgets: state.widgets,
 
       // selectedWIdgets
@@ -61,7 +60,6 @@ function CanvasGround({ stageRef }: CanvasProps) {
     y2: 0,
   });
 
-  const updateImageTransform = useEditorStore((s) => s.updateImageTransform);
   const updateWidgetTransform = useEditorStore((s) => s.updateWidgetTransform);
 
   useEffect(() => {
@@ -214,10 +212,8 @@ function CanvasGround({ stageRef }: CanvasProps) {
     const selectable = findSelectableAncestor(node) ?? node;
     const x = selectable.x();
     const y = selectable.y();
-    // persist for either image or widget by id
-    const isImage = images.some((img) => img.id === id);
-    if (isImage) updateImageTransform(id, { x, y });
-    else updateWidgetTransform(id, { x, y });
+
+    updateWidgetTransform(id, { x, y });
   };
 
   const handleTransformEnd: KonvaNodeEvents['onTransformEnd'] = (e) => {
@@ -235,78 +231,53 @@ function CanvasGround({ stageRef }: CanvasProps) {
     selectable.scaleX(1);
     selectable.scaleY(1);
 
-    const isImage = images.some((img) => img.id === id);
-    if (isImage) updateImageTransform(id, { x, y, scaleX, scaleY, rotation });
-    else updateWidgetTransform(id, { x, y, scaleX, scaleY, rotation });
+    updateWidgetTransform(id, { x, y, scaleX, scaleY, rotation });
 
     selectable.getLayer()?.batchDraw();
   };
 
   return (
     <div
-      className="bg-background outline outline-border"
+      className="bg-background outline outline-border relative"
       style={{
-        position: 'relative',
-        width: frameCrop?.width ?? stageW,
-        height: frameCrop?.height ?? stageH,
+        scale: stageScale,
       }}
     >
       <GridPattern width={15} height={15} />
       <Stage
-        width={frameCrop?.width ?? stageW}
-        height={frameCrop?.height ?? stageH}
+        width={stageW}
+        height={stageH}
         ref={stageRef}
         key={`${stageW}x${stageH}`}
         onMouseDown={handleStageMouseDown}
         onMouseMove={handleStageMouseMove}
         onMouseUp={handleStageMouseUp}
         onClick={handleStageClick}
+        onTap={handleStageClick}
       >
         <Layer>
-          {/* Images: each wrapped in a selectable Group with its own ref */}
-          {images.map((image) => (
-            <Group
-              id={image.id}
-              key={image.id}
-              name="selectable"
-              draggable
-              x={image.x}
-              y={image.y}
-              scaleX={image.scaleX}
-              scaleY={image.scaleY}
-              rotation={image.rotation}
-              ref={(node) => {
-                if (node) groupRefs.current.set(image.id, node);
-                else groupRefs.current.delete(image.id);
-              }}
-              onDragEnd={handleDragEnd}
-              onTransformEnd={handleTransformEnd}
-            >
-              <ImageWithFilters image={image} />
-            </Group>
-          ))}
-
           {/* Dynamically rendered widgets (nodes) */}
           {widgets.map((w) => {
-            if (w.type === 'text') {
-              return (
-                <Group
-                  name="selectable"
-                  key={w.id}
-                  id={w.id}
-                  draggable
-                  x={w.x}
-                  y={w.y}
-                  scaleX={w.scaleX}
-                  scaleY={w.scaleY}
-                  rotation={w.rotation}
-                  ref={(node) => {
-                    if (node) groupRefs.current.set(w.id, node);
-                    else groupRefs.current.delete(w.id);
-                  }}
-                  onDragEnd={handleDragEnd}
-                  onTransformEnd={handleTransformEnd}
-                >
+            return (
+              <Group
+                name="selectable"
+                key={w.id}
+                id={w.id}
+                draggable
+                x={w.x}
+                y={w.y}
+                scaleX={w.scaleX}
+                scaleY={w.scaleY}
+                rotation={w.rotation}
+                ref={(node) => {
+                  if (node) groupRefs.current.set(w.id, node);
+                  else groupRefs.current.delete(w.id);
+                }}
+                onDragEnd={handleDragEnd}
+                onTransformEnd={handleTransformEnd}
+              >
+                {w.type === 'image' && <ImageWithFilters image={w} />}
+                {w.type === 'text' && (
                   <Text
                     align={w.align}
                     text={w.text}
@@ -323,11 +294,9 @@ function CanvasGround({ stageRef }: CanvasProps) {
                     shadowOffsetX={w.shadowOffsetX}
                     shadowOffsetY={w.shadowOffsetY}
                   />
-                </Group>
-              );
-            } else {
-              return null;
-            }
+                )}
+              </Group>
+            );
           })}
         </Layer>
 

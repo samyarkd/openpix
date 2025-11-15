@@ -5,7 +5,6 @@ import { immer } from 'zustand/middleware/immer';
 import type { EditorStore } from './editor.types';
 import { createCanvasSlice } from './slices/canvas.slice';
 import { createCropSlice } from './slices/crop.slice';
-import { createImagesSlice } from './slices/images.slice';
 import { createUiSlice } from './slices/ui.slice';
 import { createWidgetSlice } from './slices/widgets.slice';
 
@@ -13,7 +12,6 @@ export const useEditorStore = create<EditorStore>()(
   devtools(
     immer((...a) => ({
       ...createCanvasSlice(...a),
-      ...createImagesSlice(...a),
       ...createCropSlice(...a),
       ...createUiSlice(...a),
       ...createWidgetSlice(...a),

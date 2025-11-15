@@ -14,12 +14,11 @@ const ImageWithFilters = (props: { image: ImageItem }) => {
   const isCachedRef = useRef(false);
   const cacheRatioRef = useRef(1);
 
-  const { frameCrop, stageH, stageW, setActiveImage } = useEditorStore(
+  const { frameCrop, stageH, stageW } = useEditorStore(
     useShallow((state) => ({
       stageW: state.stageW,
       stageH: state.stageH,
       frameCrop: state.frameCrop,
-      setActiveImage: state.setActiveImage,
     }))
   );
 
@@ -119,15 +118,6 @@ const ImageWithFilters = (props: { image: ImageItem }) => {
       saturation={filtersState.saturation}
       luminance={filtersState.luminance}
       value={filtersState.value}
-      onClick={() => {
-        console.log('active set click');
-
-        setActiveImage(image.id);
-      }}
-      onTap={() => {
-        console.log('active set tap');
-        setActiveImage(image.id);
-      }}
     />
   );
 };

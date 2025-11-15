@@ -1,6 +1,15 @@
-import type { SliceCreator, Widget, WidgetsSlice } from '../editor.types';
+import { castDraft } from 'immer';
+import { loadImage } from '~/lib/load-image';
+import {
+  defaultFilters,
+  type ImageItem,
+  type SliceCreator,
+  type Widget,
+  type WidgetsSlice,
+} from '../editor.types';
+import { computeOverlayDimensions } from '../utils/geometry';
 
-export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set) => ({
+export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
   /**
    * This list contains node that will be rendered inside the canvas
    */
@@ -50,7 +59,8 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set) => ({
       if (typeof created.scaleX !== 'number') created.scaleX = 1;
       if (typeof created.scaleY !== 'number') created.scaleY = 1;
       if (typeof created.rotation !== 'number') created.rotation = 0;
-      state.widgets.push(created);
+
+      state.widgets.push(castDraft(created));
     });
   },
   /**
@@ -79,6 +89,13 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set) => ({
       state.widgets = state.widgets.filter((w) => w.id !== wId);
     });
   },
+  /**
+   * Updates the transformation properties of a widget with the given id.
+   *
+   * @param id The id of the widget to update.
+   * @param transform The new transformation properties.
+   * Only the properties specified in the object will be updated.
+   */
   updateWidgetTransform: (id, transform) => {
     set((state) => {
       const widget = state.widgets.find((w) => w.id === id);
@@ -88,6 +105,65 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set) => ({
       widget.scaleX = transform.scaleX ?? widget.scaleX;
       widget.scaleY = transform.scaleY ?? widget.scaleY;
       widget.rotation = transform.rotation ?? widget.rotation;
+    });
+  },
+
+  /**
+   * Add a new image widget to the widgets
+   * @param imgUrl URL of the image
+   */
+  addImageWidget: async (imgUrl) => {
+    try {
+      const state = get();
+      const loadedImg = await loadImage(imgUrl, { crossOrigin: 'anonymous' });
+
+      const imgW = loadedImg?.width || 0;
+      const imgH = loadedImg?.height || 0;
+
+      const imgObj: ImageItem = {
+        type: 'image',
+        id: crypto.randomUUID(),
+        img: loadedImg,
+        filters: defaultFilters,
+        drawW: 0,
+        drawH: 0,
+        x: 0,
+        y: 0,
+        scaleX: 1,
+        scaleY: 1,
+        rotation: 0,
+      };
+
+      // other new images will be scaled down
+      const { drawW, drawH } = computeOverlayDimensions(
+        imgW,
+        imgH,
+        state.stageScale
+      );
+      imgObj.drawW = drawW;
+      imgObj.drawH = drawH;
+
+      state.addWidget(imgObj);
+
+      if (imgUrl.startsWith('blob:')) URL.revokeObjectURL(imgUrl);
+    } catch (error) {
+      console.error('Failed to load the image', error);
+    }
+  },
+
+  /**
+   * Update image filters
+   */
+  setImageFilters: (id, filters) => {
+    set((state) => {
+      const images = state.widgets.filter((w) => w.type === 'image');
+      const image = images.find((f) => f.id === id);
+      if (!image) return;
+      for (const key of Object.keys(
+        filters
+      ) as (keyof ImageItem['filters'])[]) {
+        image.filters[key] = filters[key] ?? image.filters[key];
+      }
     });
   },
 });

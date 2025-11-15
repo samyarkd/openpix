@@ -57,7 +57,8 @@ export const defaultFilters: FiltersState = {
   value: 0,
 };
 
-export type ImageItem = {
+export type ImageItem = WidgetBase & {
+  type: 'image';
   id: string;
   img: HTMLImageElement;
   drawW: number;
@@ -78,8 +79,6 @@ export type Container = { width: number; height: number };
 export type CanvasData = {
   stageW: number;
   stageH: number;
-  stageScaleX: number;
-  stageScaleY: number;
   stageScale: number;
 };
 
@@ -97,16 +96,6 @@ export type CropSlice = {
   frameCrop: Crop | null;
   setCrop: (crop: Crop) => void;
   resetCrop: () => void;
-};
-
-export type ImagesSlice = {
-  images: ImageItem[];
-  rootImage: ImageItem | null;
-  activeImageId: string | null;
-  addImage: (imgUrl: string) => void;
-  setImageFilters: (id: string, filters: Partial<FiltersState>) => void;
-  setActiveImage: (id: string | null) => void;
-  updateImageTransform: (id: string, transform: Partial<Transform>) => void;
 };
 
 export type WidgetBase = Transform & {
@@ -138,11 +127,12 @@ export type StickerWidget = WidgetBase & {
   type: 'sticker';
 };
 
-export type Widget = TextWidget | StickerWidget;
+export type Widget = TextWidget | StickerWidget | ImageItem;
 
 export type WidgetMap = {
   text: TextWidget;
   sticker: StickerWidget;
+  image: ImageItem;
 };
 
 export type WidgetType = Widget['type'];
@@ -156,11 +146,14 @@ export type NewWidget<T extends WidgetType> = Omit<
 
 export type WidgetsSlice = {
   // Widgets
+  widgets: Widget[];
+
+  // selected widgets
   selectedWidgetId: string | null;
   selectedWidgetIds: string[];
   setSelectedWidgetIds: (wIds: string[]) => void;
 
-  widgets: Widget[];
+  // Add, update, remove and transform
   addWidget: <T extends WidgetType>(w: NewWidget<T>) => void;
   updateWidget: <T extends WidgetType>(
     wId: string,
@@ -168,16 +161,16 @@ export type WidgetsSlice = {
   ) => void;
   removeWidget: (wId: string) => void;
   updateWidgetTransform: (id: string, transform: Partial<Transform>) => void;
+
+  // Image specific
+  addImageWidget: (imgUrl: string) => void;
+  setImageFilters: (id: string, filters: Partial<FiltersState>) => void;
 };
 
 export type UiSlice = EditorTabContextType;
 
 // ------------ Full store ------------------
-export type EditorStore = CanvasSlice &
-  CropSlice &
-  ImagesSlice &
-  UiSlice &
-  WidgetsSlice;
+export type EditorStore = CanvasSlice & CropSlice & UiSlice & WidgetsSlice;
 
 // Zustand middleware tuple used by slices
 export type WithMiddleware = [
