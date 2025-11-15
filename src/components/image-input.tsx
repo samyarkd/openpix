@@ -2,24 +2,32 @@ import { ImageUpIcon } from 'lucide-react';
 import {
   ChangeEventHandler,
   DragEventHandler,
+  useCallback,
   useEffect,
   useRef,
   useState,
 } from 'react';
-import { Button } from './ui/button';
+import { useShallow } from 'zustand/shallow';
+import { useEditorStore } from '~/store/editor.store';
 
-type ImageDropZoneProps = {
-  onSelect?: (url: string, file: File) => void;
-};
-
-const ImageDropZone = ({ onSelect }: ImageDropZoneProps) => {
+const ImageDropZone = () => {
   const [isDragging, setIsDragging] = useState(false);
-  const dropRef = useRef<HTMLDivElement>(null);
+  const dropRef = useRef<HTMLButtonElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragCounter = useRef(0);
+  const addImageWidget = useEditorStore(
+    useShallow((state) => state.addImageWidget)
+  );
+
+  const onSelect = useCallback(
+    (url: string) => {
+      addImageWidget(url);
+    },
+    [addImageWidget]
+  );
 
   // Handle drag events
-  const handleDragEnter: DragEventHandler<HTMLDivElement> = (e) => {
+  const handleDragEnter: DragEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.dataTransfer?.items && e.dataTransfer.items.length > 0) {
@@ -28,7 +36,7 @@ const ImageDropZone = ({ onSelect }: ImageDropZoneProps) => {
     setIsDragging(true);
   };
 
-  const handleDragLeave: DragEventHandler<HTMLDivElement> = (e) => {
+  const handleDragLeave: DragEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
     e.stopPropagation();
     dragCounter.current = Math.max(0, dragCounter.current - 1);
@@ -37,7 +45,7 @@ const ImageDropZone = ({ onSelect }: ImageDropZoneProps) => {
     }
   };
 
-  const handleDragOver: DragEventHandler<HTMLDivElement> = (e) => {
+  const handleDragOver: DragEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.dataTransfer) {
@@ -45,7 +53,7 @@ const ImageDropZone = ({ onSelect }: ImageDropZoneProps) => {
     }
   };
 
-  const handleDrop: DragEventHandler<HTMLDivElement> = (e) => {
+  const handleDrop: DragEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
     e.stopPropagation();
     dragCounter.current = 0;
@@ -56,7 +64,7 @@ const ImageDropZone = ({ onSelect }: ImageDropZoneProps) => {
       const file = files[0];
       if (file.type.startsWith('image/')) {
         const url = URL.createObjectURL(file);
-        onSelect?.(url, file);
+        onSelect?.(url);
       }
     }
   };
@@ -66,7 +74,7 @@ const ImageDropZone = ({ onSelect }: ImageDropZoneProps) => {
     const file = e.target.files?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
-      onSelect?.(url, file);
+      onSelect?.(url);
     }
   };
 
@@ -90,34 +98,35 @@ const ImageDropZone = ({ onSelect }: ImageDropZoneProps) => {
   }, []);
 
   return (
-    <div
+    <button
       ref={dropRef}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       onClick={handleClick}
-      role="button"
-      tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           handleClick();
         }
       }}
-      className="h-full flex items-center justify-center z-10 relative  w-full"
+      className="h-full flex-col flex items-center justify-center z-10 relative w-full gap-2 py-8 cursor-pointer hover:bg-accent focus:bg-accent active:bg-accent/80 rounded-lg"
     >
-      <Button
-        variant="ghost"
-        className="!py-10 !px-20 rounded-lg border cursor-pointer"
-      >
-        <ImageUpIcon size={90} />
-        <p>
-          {isDragging
-            ? 'Drop the image here!'
-            : 'Drag & drop an image or click to select'}
-        </p>
-      </Button>
+      <ImageUpIcon
+        className="opacity-60 text-4xl"
+        width={100}
+        height={100}
+        size={100}
+      />
+      <p>
+        {isDragging
+          ? 'Drop the image here!'
+          : 'Drag & drop an image or click to select'}
+      </p>
+      <p className="text-xs text-card-foreground italic">
+        The image will not be uploaded to a server
+      </p>
       <input
         type="file"
         ref={fileInputRef}
@@ -125,7 +134,7 @@ const ImageDropZone = ({ onSelect }: ImageDropZoneProps) => {
         accept="image/*"
         onChange={handleFileChange}
       />
-    </div>
+    </button>
   );
 };
 

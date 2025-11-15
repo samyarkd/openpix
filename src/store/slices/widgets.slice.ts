@@ -87,6 +87,7 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
   removeWidget: (wId) => {
     set((state) => {
       state.widgets = state.widgets.filter((w) => w.id !== wId);
+      state.setSelectedWidgetIds([]);
     });
   },
   /**

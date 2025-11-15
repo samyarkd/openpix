@@ -1,40 +1,35 @@
 'use client';
 
-import { CloudUpload } from 'lucide-react';
+import { useShallow } from 'zustand/shallow';
+import { Button } from '~/components/ui/button';
 import { useEditorStore } from '~/store/editor.store';
+import ImageDropZone from '../image-input';
 import { FilterSlider } from './enhance/filter-slider';
 
 export default function EnhanceTab() {
   // Only subscribe to whether an active image exists to show/hide the tab
-  const hasActive = useEditorStore((s) =>
-    Boolean(
-      s.widgets
-        .filter((w) => w.type === 'image')
-        .find((i) => i.id === s.selectedWidgetId)
-    )
+  const { hasActive, removeImage, selectedImageId } = useEditorStore(
+    useShallow((s) => ({
+      removeImage: s.removeWidget,
+      selectedImageId: s.selectedWidgetId,
+      hasActive: Boolean(
+        s.widgets
+          .filter((w) => w.type === 'image')
+          .find((i) => i.id === s.selectedWidgetId)
+      ),
+    }))
   );
 
-  if (!hasActive)
-    return (
-      <div className="w-full gap-10 py-10 flex flex-col items-center justify-center">
-        <p>Select an image</p>
-        <CloudUpload size={72} className="text-primary/50" />
-      </div>
-    );
+  if (!hasActive) return <ImageDropZone />;
 
   return (
     <div className="p-3 flex flex-col gap-6">
-      {/* Enhance -- NOTE: not for now */}
-      {/* <EditorSlider
-        id="enhance"
-        label={`Enhance (${filters.enhance.toFixed(2)})`}
-        min={0}
-        max={1}
-        step={0.01}
-        value={enhanceVal}
-        onValueChange={onEnhance}
-      /> */}
-
+      <Button
+        variant="destructive"
+        onClick={() => removeImage(selectedImageId!)}
+      >
+        Remove Image
+      </Button>
       {/* Brightness */}
       <FilterSlider
         filterKey="brightness"
