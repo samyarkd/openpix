@@ -14,32 +14,45 @@ export const createCanvasSlice: SliceCreator<CanvasSlice> = (set, get) => ({
    * Runs every time stage or container size changes
    */
   handleResize: () => {
-    set((state) => {
-      // Root image should fit the stage
-      const scale = computeStageScale(
-        state.container.width,
-        state.container.height,
-        state.stageW,
-        state.stageH
-      );
+    set(
+      (state) => {
+        // Root image should fit the stage
+        const scale = computeStageScale(
+          state.container.width,
+          state.container.height,
+          state.stageW,
+          state.stageH
+        );
 
-      state.stageScale = scale;
-    });
+        state.stageScale = scale;
+      },
+      false,
+      'handleResize'
+    );
   },
 
   setCanvasDate: (data) => {
-    set((state) => {
-      const { stageW, stageH, stageScale } = data;
-      if (typeof stageW === 'number') state.stageW = stageW;
-      if (typeof stageH === 'number') state.stageH = stageH;
-      if (typeof stageScale === 'number') state.stageScale = stageScale;
-    });
+    set(
+      (state) => {
+        const { stageW, stageH, stageScale } = data;
+        if (typeof stageW === 'number') state.stageW = stageW;
+        if (typeof stageH === 'number') state.stageH = stageH;
+        if (typeof stageScale === 'number') state.stageScale = stageScale;
+      },
+      false,
+      'setCanvasData'
+    );
+    get().handleResize();
   },
 
   setContainer: (container) => {
-    get().handleResize();
-    set((state) => {
-      state.container = container;
-    });
+    set(
+      (state) => {
+        state.container = container;
+        state.handleResize();
+      },
+      false,
+      'setContainer'
+    );
   },
 });
