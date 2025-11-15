@@ -1,3 +1,5 @@
+import { CONTAINER_PADDING_SIZE } from '~/constants';
+
 /**
  * Compute the how much we need to scale up or down the stage(canvas)
  * to make it fit inside the container
@@ -42,4 +44,18 @@ export function computeOverlayDimensions(
   const drawW = imgW * (stageScale / 2);
   const drawH = imgH * (stageScale / 2);
   return { drawW, drawH };
+}
+
+/**
+ * Compute the padded and scaled of a size number (can be size of anything)
+ * @param size the of a size number (can be size of anything)
+ * @param scale the scale of the canvas
+ * @returns the padded and scaled of a size number (can be size of anything)
+ */
+export function computePaddingAndScale(
+  size: number,
+  scale: number,
+  noPad: boolean = false
+): number {
+  return (size - (noPad ? 0 : CONTAINER_PADDING_SIZE) * scale) * scale;
 }

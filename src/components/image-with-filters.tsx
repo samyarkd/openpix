@@ -14,11 +14,10 @@ const ImageWithFilters = (props: { image: ImageItem }) => {
   const isCachedRef = useRef(false);
   const cacheRatioRef = useRef(1);
 
-  const { frameCrop, stageH, stageW } = useEditorStore(
+  const { stageH, stageW } = useEditorStore(
     useShallow((state) => ({
       stageW: state.stageW,
       stageH: state.stageH,
-      frameCrop: state.frameCrop,
     }))
   );
 
@@ -91,8 +90,6 @@ const ImageWithFilters = (props: { image: ImageItem }) => {
       image={image.img}
       width={image.drawW}
       height={image.drawH}
-      x={-(frameCrop?.x ?? 0)}
-      y={-(frameCrop?.y ?? 0)}
       perfectDrawEnabled={false}
       shadowForStrokeEnabled={false}
       transformsEnabled="position"

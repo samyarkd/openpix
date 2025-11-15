@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 import { useEditorStore } from '~/store/editor.store';
+import { computePaddingAndScale } from '~/store/utils/geometry';
 
 type HandleType = 'tl' | 'tr' | 'bl' | 'br';
 
@@ -14,12 +15,14 @@ export const useCropFrame = () => {
     setCrop,
     stageW,
     stageH,
+    stageScale,
   } = useEditorStore(
     useShallow((state) => ({
       crop: state.frameCrop,
       setCrop: state.setCrop,
-      stageW: state.stageW,
-      stageH: state.stageH,
+      stageW: computePaddingAndScale(state.stageW, state.stageScale),
+      stageH: computePaddingAndScale(state.stageH, state.stageScale),
+      stageScale: state.stageScale,
     }))
   );
 
@@ -110,7 +113,13 @@ export const useCropFrame = () => {
         height = stageH - y;
       }
 
-      setLocalCrop({ x, y, width, height, rotation: 0 });
+      setLocalCrop({
+        x,
+        y,
+        width: width,
+        height: height,
+        rotation: 0,
+      });
     },
     [activeHandle]
   );
@@ -123,8 +132,8 @@ export const useCropFrame = () => {
       setLocalCrop({
         x: 0,
         y: 0,
-        width: crop.width,
-        height: crop.height,
+        width: computePaddingAndScale(crop.width, stageScale, true),
+        height: computePaddingAndScale(crop.height, stageScale, true),
         rotation: 0,
       });
       setActiveHandle(null);

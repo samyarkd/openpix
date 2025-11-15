@@ -18,4 +18,6 @@ export const googleFonts = [
   'Sour Gummy',
   'Ubuntu',
   'UnifrakturMaguntia',
-];
+] as const;
+
+export const CONTAINER_PADDING_SIZE = 32 as const;

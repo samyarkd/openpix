@@ -17,7 +17,7 @@ export function ModeToggle() {
   return (
     <Button
       variant="outline"
-      size="icon"
+      size="sm"
       onClick={toggleTheme}
       aria-label="Toggle theme"
       className="cursor-pointer backdrop-blur-3xl"

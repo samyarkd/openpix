@@ -1,6 +1,7 @@
 import Konva from 'konva';
 import { DownloadIcon, SlidersHorizontalIcon } from 'lucide-react';
-import { RefObject, useCallback, useEffect, useState } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { useShallow } from 'zustand/shallow';
 import { Button } from '~/components/ui/button';
@@ -18,11 +19,12 @@ import { useEditorStore } from '~/store/editor.store';
 
 const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
   const stageRef = props.stageRef;
-  const { stageH, stageW, frameCrop } = useEditorStore(
+  const portalOutRef = useRef<HTMLElement>(null);
+
+  const { stageH, stageW } = useEditorStore(
     useShallow((state) => ({
       stageW: state.stageW,
       stageH: state.stageH,
-      frameCrop: state.frameCrop,
     }))
   );
 
@@ -61,8 +63,8 @@ const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
         quality,
         x: 0,
         y: 0,
-        width: frameCrop?.width ?? stageW,
-        height: frameCrop?.height ?? stageH,
+        width: stageW,
+        height: stageH,
       });
     } catch {
       // no-op
@@ -84,61 +86,71 @@ const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
     return () => window.removeEventListener('keydown', onKey);
   }, [handleDownload]);
 
+  useEffect(() => {
+    portalOutRef.current = document.getElementById('export-portal');
+  }, []);
+
   return (
-    <div className="absolute bottom-2 right-2 z-20 flex items-center gap-2">
-      <Button
-        size="sm"
-        variant="outline"
-        className="backdrop-blur-2xl"
-        onClick={handleDownload}
-      >
-        <DownloadIcon className="mr-2" /> Export
-      </Button>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            size="sm"
-            variant="outline"
-            aria-label="Export options"
-            className="backdrop-blur-2xl"
-          >
-            <SlidersHorizontalIcon />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>Format</DropdownMenuLabel>
-          <DropdownMenuRadioGroup
-            value={exportMime}
-            onValueChange={(v) =>
-              setExportMime(v as 'image/png' | 'image/jpeg' | 'image/webp')
-            }
-          >
-            <DropdownMenuRadioItem value="image/png">
-              PNG (.png)
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="image/jpeg">
-              JPEG (.jpg)
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="image/webp">
-              WebP (.webp)
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Scale</DropdownMenuLabel>
-          <DropdownMenuRadioGroup
-            value={exportScale}
-            onValueChange={(v) => setExportScale(v as '1' | '2' | '3' | 'dpr')}
-          >
-            <DropdownMenuRadioItem value="1">1x</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="2">2x</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="3">3x</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="dpr">
-              Match device pixel ratio
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+    portalOutRef.current &&
+    createPortal(
+      <div className="flex items-center gap-2">
+        <Button
+          size="sm"
+          variant="outline"
+          className="backdrop-blur-2xl"
+          onClick={handleDownload}
+        >
+          <DownloadIcon className="mr-2" /> Export
+        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              aria-label="Export options"
+              className="backdrop-blur-2xl"
+            >
+              <SlidersHorizontalIcon />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>Format</DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={exportMime}
+              onValueChange={(v) =>
+                setExportMime(v as 'image/png' | 'image/jpeg' | 'image/webp')
+              }
+            >
+              <DropdownMenuRadioItem value="image/png">
+                PNG (.png)
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="image/jpeg">
+                JPEG (.jpg)
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="image/webp">
+                WebP (.webp)
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Scale</DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={exportScale}
+              onValueChange={(v) =>
+                setExportScale(v as '1' | '2' | '3' | 'dpr')
+              }
+            >
+              <DropdownMenuRadioItem value="1">1x</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="2">2x</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="3">3x</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="dpr">
+                Match device pixel ratio
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>,
+      portalOutRef.current
+    )
   );
 };
 

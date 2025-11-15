@@ -14,6 +14,7 @@ import {
 } from 'react-konva';
 import { useShallow } from 'zustand/shallow';
 import { useEditorStore } from '~/store/editor.store';
+import { computePaddingAndScale } from '~/store/utils/geometry';
 import StageCropFrame from './editor-tabs/crop/stage-crop-frame';
 import ImageWithFilters from './image-with-filters';
 import { GridPattern } from './magicui/grid-pattern';
@@ -237,16 +238,14 @@ function CanvasGround({ stageRef }: CanvasProps) {
   };
 
   return (
-    <div
-      className="bg-background outline outline-border relative"
-      style={{
-        scale: stageScale,
-      }}
-    >
+    <div className="bg-background outline outline-border relative">
       <GridPattern width={15} height={15} />
+
       <Stage
-        width={stageW}
-        height={stageH}
+        width={computePaddingAndScale(stageW, stageScale)}
+        height={computePaddingAndScale(stageH, stageScale)}
+        scaleX={stageScale}
+        scaleY={stageScale}
         ref={stageRef}
         key={`${stageW}x${stageH}`}
         onMouseDown={handleStageMouseDown}

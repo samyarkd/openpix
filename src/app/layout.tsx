@@ -48,10 +48,13 @@ export default function RootLayout({
           <AppSidebar />
           <SidebarInset className="relative flex-1 min-h-svh">
             {/* Navbar */}
-            <nav className="flex items-start justify-between absolute top-0 z-10 right-0 left-0">
+            <nav className="flex items-start justify-between bg-card ">
               <SidebarTrigger className="cursor-pointer m-1 backdrop-blur-3xl" />
-              <div className="p-1">
+              <div className="p-1 flex items-center gap-2">
+                {/* Dark/Light */}
                 <ModeToggle />
+                {/* Export Options */}
+                <div id="export-portal" />
               </div>
             </nav>
             {/* Content */}

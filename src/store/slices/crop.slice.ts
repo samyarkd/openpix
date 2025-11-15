@@ -6,6 +6,8 @@ export const createCropSlice: SliceCreator<CropSlice> = (set) => ({
   setCrop: (crop) => {
     set((state) => {
       state.frameCrop = crop;
+      state.stageH = crop.height;
+      state.stageW = crop.width;
     });
   },
 

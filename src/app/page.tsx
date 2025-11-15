@@ -1,13 +1,10 @@
 'use client';
-
 import Konva from 'konva';
 import { useCallback, useEffect, useRef } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 import CanvasGround from '~/components/canvas-ground';
 import ExportOptions from '~/components/export-options';
-import ImageDropZone from '~/components/image-input';
-import { GridPattern } from '~/components/magicui/grid-pattern';
 import { useSidebar } from '~/components/ui/sidebar';
 import { useActiveTab } from '~/hooks/use-active-tab';
 import { useEditorStore } from '~/store/editor.store';
@@ -18,12 +15,8 @@ export default function Home() {
   const { open } = useSidebar();
 
   const { activeTab } = useActiveTab();
-  const { stageW, addImageWidget, setContainer } = useEditorStore(
+  const { setContainer } = useEditorStore(
     useShallow((state) => ({
-      stageW: state.stageW,
-      container: state.container,
-      //
-      addImageWidget: state.addImageWidget,
       setContainer: state.setContainer,
     }))
   );
@@ -113,18 +106,11 @@ export default function Home() {
     <div
       id="canvas-container-page"
       data-sidebar-open={open}
-      className={'absolute inset-0 isolate flex items-center justify-center '}
+      className={'isolate flex items-center justify-center w-full h-full'}
       ref={containerRef}
     >
-      {/* canvas */}
-      {!stageW && <GridPattern className="z-0" />}
-
       {/* Image */}
-      {stageW && <CanvasGround stageRef={stageRef} />}
-
-      {/* Drop zone */}
-      {!stageW && <ImageDropZone onSelect={addImageWidget} />}
-
+      <CanvasGround stageRef={stageRef} />
       {/* Export Options */}
       <ExportOptions stageRef={stageRef} />
     </div>
