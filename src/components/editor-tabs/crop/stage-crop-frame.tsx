@@ -15,7 +15,7 @@ const StageCropFrame = () => {
   return (
     <div
       className={cn(
-        'absolute border-2 border-dashed border-primary',
+        'absolute outline-2 outline-dashed outline-primary',
         activeTab === 'crop' ? 'block' : 'hidden'
       )}
       style={{

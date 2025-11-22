@@ -143,7 +143,7 @@ function CanvasGround({ stageRef }: CanvasProps) {
     }));
   };
 
-  const handleStageMouseUp: KonvaNodeEvents['onMouseUp'] = (e) => {
+  const handleStageMouseUp: KonvaNodeEvents['onMouseUp'] = () => {
     if (!isSelecting.current) return;
     isSelecting.current = false;
 
@@ -248,6 +248,7 @@ function CanvasGround({ stageRef }: CanvasProps) {
         scaleY={stageScale}
         ref={stageRef}
         key={`${stageW}x${stageH}`}
+        className="resize"
         onMouseDown={handleStageMouseDown}
         onMouseMove={handleStageMouseMove}
         onMouseUp={handleStageMouseUp}

@@ -132,8 +132,8 @@ export const useCropFrame = () => {
       setLocalCrop({
         x: 0,
         y: 0,
-        width: computePaddingAndScale(crop.width, stageScale, true),
-        height: computePaddingAndScale(crop.height, stageScale, true),
+        width: computePaddingAndScale(crop.width, stageScale),
+        height: computePaddingAndScale(crop.height, stageScale),
         rotation: 0,
       });
       setActiveHandle(null);

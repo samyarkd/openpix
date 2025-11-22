@@ -1,5 +1,3 @@
-import { CONTAINER_PADDING_SIZE } from '~/constants';
-
 /**
  * Compute the how much we need to scale up or down the stage(canvas)
  * to make it fit inside the container
@@ -52,10 +50,6 @@ export function computeOverlayDimensions(
  * @param scale the scale of the canvas
  * @returns the padded and scaled of a size number (can be size of anything)
  */
-export function computePaddingAndScale(
-  size: number,
-  scale: number,
-  noPad: boolean = false
-): number {
-  return (size - (noPad ? 0 : CONTAINER_PADDING_SIZE) * scale) * scale;
+export function computePaddingAndScale(size: number, scale: number): number {
+  return size * scale;
 }
