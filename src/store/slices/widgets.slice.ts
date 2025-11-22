@@ -167,4 +167,47 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
       }
     });
   },
+
+  // Layer ordering
+  moveWidgetUp: (id) => {
+    set((state) => {
+      const index = state.widgets.findIndex((w) => w.id === id);
+      if (index < state.widgets.length - 1) {
+        const temp = state.widgets[index];
+        state.widgets[index] = state.widgets[index + 1];
+        state.widgets[index + 1] = temp;
+      }
+    });
+  },
+
+  moveWidgetDown: (id) => {
+    set((state) => {
+      const index = state.widgets.findIndex((w) => w.id === id);
+      if (index > 0) {
+        const temp = state.widgets[index];
+        state.widgets[index] = state.widgets[index - 1];
+        state.widgets[index - 1] = temp;
+      }
+    });
+  },
+
+  moveWidgetToFront: (id) => {
+    set((state) => {
+      const index = state.widgets.findIndex((w) => w.id === id);
+      if (index !== -1) {
+        const widget = state.widgets.splice(index, 1)[0];
+        state.widgets.push(widget);
+      }
+    });
+  },
+
+  moveWidgetToBack: (id) => {
+    set((state) => {
+      const index = state.widgets.findIndex((w) => w.id === id);
+      if (index !== -1) {
+        const widget = state.widgets.splice(index, 1)[0];
+        state.widgets.unshift(widget);
+      }
+    });
+  },
 });

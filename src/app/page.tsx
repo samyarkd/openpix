@@ -15,9 +15,10 @@ export default function Home() {
   const { open } = useSidebar();
 
   const { activeTab } = useActiveTab();
-  const { setContainer } = useEditorStore(
+  const { setContainer, addImageWidget } = useEditorStore(
     useShallow((state) => ({
       setContainer: state.setContainer,
+      addImageWidget: state.addImageWidget,
     }))
   );
 
@@ -90,6 +91,43 @@ export default function Home() {
     ro.observe(gap);
     return () => ro.disconnect();
   }, [measure]);
+
+  // Drag and drop for images
+  const handleDragOver = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0) {
+        Array.from(files).forEach((file) => {
+          if (file.type.startsWith('image/')) {
+            const url = URL.createObjectURL(file);
+            addImageWidget(url);
+          }
+        });
+      }
+    },
+    [addImageWidget]
+  );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    container.addEventListener('dragover', handleDragOver);
+    container.addEventListener('drop', handleDrop);
+
+    return () => {
+      container.removeEventListener('dragover', handleDragOver);
+      container.removeEventListener('drop', handleDrop);
+    };
+  }, [handleDragOver, handleDrop]);
 
   // High-DPI: sync Konva pixel ratio with devicePixelRatio
   useEffect(() => {

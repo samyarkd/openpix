@@ -2,7 +2,13 @@ import type { StateCreator } from 'zustand';
 import { HexColor } from '../../types';
 
 // Editor Tabs
-export type EditorTab = 'enhance' | 'crop' | 'type' | 'brush' | 'sticker';
+export type EditorTab =
+  | 'enhance'
+  | 'crop'
+  | 'type'
+  | 'brush'
+  | 'sticker'
+  | 'layers';
 
 export interface EditorTabContextType {
   activeTab: EditorTab;
@@ -165,9 +171,18 @@ export type WidgetsSlice = {
   // Image specific
   addImageWidget: (imgUrl: string) => void;
   setImageFilters: (id: string, filters: Partial<FiltersState>) => void;
+
+  // Layer ordering
+  moveWidgetUp: (id: string) => void;
+  moveWidgetDown: (id: string) => void;
+  moveWidgetToFront: (id: string) => void;
+  moveWidgetToBack: (id: string) => void;
 };
 
-export type UiSlice = EditorTabContextType;
+export type UiSlice = EditorTabContextType & {
+  snapEnabled: boolean;
+  setSnapEnabled: (enabled: boolean) => void;
+};
 
 // ------------ Full store ------------------
 export type EditorStore = CanvasSlice & CropSlice & UiSlice & WidgetsSlice;

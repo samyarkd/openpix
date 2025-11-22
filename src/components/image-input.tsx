@@ -61,20 +61,25 @@ const ImageDropZone = () => {
 
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      const file = files[0];
-      if (file.type.startsWith('image/')) {
-        const url = URL.createObjectURL(file);
-        onSelect?.(url);
-      }
+      Array.from(files).forEach((file) => {
+        if (file.type.startsWith('image/')) {
+          const url = URL.createObjectURL(file);
+          onSelect?.(url);
+        }
+      });
     }
   };
 
   // Handle file selection via click (for fallback)
   const handleFileChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      onSelect?.(url);
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        if (file.type.startsWith('image/')) {
+          const url = URL.createObjectURL(file);
+          onSelect?.(url);
+        }
+      });
     }
   };
 
@@ -121,8 +126,8 @@ const ImageDropZone = () => {
       />
       <p>
         {isDragging
-          ? 'Drop the image here!'
-          : 'Drag & drop an image or click to select'}
+          ? 'Drop the images here!'
+          : 'Drag & drop images or click to select'}
       </p>
       <p className="text-xs text-card-foreground italic">
         The image will not be uploaded to a server
@@ -132,6 +137,7 @@ const ImageDropZone = () => {
         ref={fileInputRef}
         style={{ display: 'none' }}
         accept="image/*"
+        multiple
         onChange={handleFileChange}
       />
     </button>

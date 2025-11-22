@@ -3,6 +3,7 @@
 import {
   BrushIcon,
   CropIcon,
+  LayersIcon,
   SlidersHorizontalIcon,
   SmileIcon,
   TypeIcon,
@@ -18,6 +19,7 @@ import { EditorTab } from '~/store/editor.store';
 import BrushTab from './editor-tabs/BrushTab';
 import CropTab from './editor-tabs/CropTab';
 import EnhanceTab from './editor-tabs/EnhanceTab';
+import LayersTab from './editor-tabs/LayersTab';
 import StickerTab from './editor-tabs/StickerTab';
 import TypeTab from './editor-tabs/TypeTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -52,6 +54,9 @@ export function AppSidebar() {
                 <TabsTrigger className="cursor-pointer" value="sticker">
                   <SmileIcon />
                 </TabsTrigger>
+                <TabsTrigger className="cursor-pointer" value="layers">
+                  <LayersIcon />
+                </TabsTrigger>
               </TabsList>
 
               {/* Tab Content */}
@@ -69,6 +74,9 @@ export function AppSidebar() {
               </TabsContent>
               <TabsContent value="sticker">
                 <StickerTab />
+              </TabsContent>
+              <TabsContent value="layers">
+                <LayersTab />
               </TabsContent>
             </Tabs>
           </SidebarGroupContent>

@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import { DownloadIcon, SlidersHorizontalIcon } from 'lucide-react';
+import { DownloadIcon, SlidersHorizontalIcon, MagnetIcon } from 'lucide-react';
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -21,10 +21,12 @@ const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
   const stageRef = props.stageRef;
   const portalOutRef = useRef<HTMLElement>(null);
 
-  const { stageH, stageW } = useEditorStore(
+  const { stageH, stageW, snapEnabled, setSnapEnabled } = useEditorStore(
     useShallow((state) => ({
       stageW: state.stageW,
       stageH: state.stageH,
+      snapEnabled: state.snapEnabled,
+      setSnapEnabled: state.setSnapEnabled,
     }))
   );
 
@@ -94,6 +96,14 @@ const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
     portalOutRef.current &&
     createPortal(
       <div className="flex items-center gap-2">
+        <Button
+          size="sm"
+          variant={snapEnabled ? 'default' : 'outline'}
+          className="backdrop-blur-2xl"
+          onClick={() => setSnapEnabled(!snapEnabled)}
+        >
+          <MagnetIcon className="mr-2" /> Snap
+        </Button>
         <Button
           size="sm"
           variant="outline"
