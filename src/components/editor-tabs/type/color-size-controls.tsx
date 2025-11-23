@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { useEditorStore } from '~/store/editor.store';
@@ -13,6 +13,54 @@ type ColorSizeControlsProps = {
 export const ColorSizeControls = memo(
   ({ widgetId, fontSize, fill }: ColorSizeControlsProps) => {
     const updateWidget = useEditorStore((state) => state.updateWidget);
+    const [localFill, setLocalFill] = useState(fill);
+    const [localFontSize, setLocalFontSize] = useState(fontSize);
+    const commitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+      setLocalFill(fill);
+    }, [fill]);
+
+    useEffect(() => {
+      setLocalFontSize(fontSize);
+    }, [fontSize]);
+
+    useEffect(() => {
+      return () => {
+        if (commitTimeoutRef.current) {
+          clearTimeout(commitTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    const commitChanges = useCallback(() => {
+      updateWidget<'text'>(widgetId, {
+        fill: localFill,
+        fontSize: localFontSize,
+      });
+    }, [updateWidget, widgetId, localFill, localFontSize]);
+
+    const debouncedCommit = useCallback(() => {
+      if (commitTimeoutRef.current) clearTimeout(commitTimeoutRef.current);
+      commitTimeoutRef.current = setTimeout(commitChanges, 100);
+    }, [commitChanges]);
+
+    const handleColorChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLocalFill(e.target.value as HexColor);
+        debouncedCommit();
+      },
+      [debouncedCommit]
+    );
+
+    const handleSizeChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newSize = Number(e.target.value);
+        setLocalFontSize(isNaN(newSize) ? 48 : newSize);
+        debouncedCommit();
+      },
+      [debouncedCommit]
+    );
 
     return (
       <div className="flex gap-2">
@@ -22,14 +70,8 @@ export const ColorSizeControls = memo(
           <Input
             id="size"
             type="number"
-            onChange={(e) => {
-              e.preventDefault();
-              const newSize = Number(e.target.value);
-              updateWidget<'text'>(widgetId, {
-                fontSize: isNaN(newSize) ? 48 : newSize,
-              });
-            }}
-            value={fontSize}
+            onChange={handleSizeChange}
+            value={localFontSize}
           />
         </div>
         {/* Color */}
@@ -38,13 +80,8 @@ export const ColorSizeControls = memo(
           <Input
             id="color"
             type="color"
-            onChange={(e) => {
-              e.preventDefault();
-              updateWidget<'text'>(widgetId, {
-                fill: e.target.value as HexColor,
-              });
-            }}
-            value={fill}
+            onChange={handleColorChange}
+            value={localFill}
           />
         </div>
       </div>
