@@ -54,8 +54,8 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
   addWidget: (w) => {
     set((state) => {
       const created = { id: crypto.randomUUID(), ...w } as Widget;
-      if (typeof created.x !== 'number') created.x = 0;
-      if (typeof created.y !== 'number') created.y = 0;
+      if (typeof created.x !== 'number') created.x = state.stageW / 2;
+      if (typeof created.y !== 'number') created.y = state.stageH / 2;
       if (typeof created.scaleX !== 'number') created.scaleX = 1;
       if (typeof created.scaleY !== 'number') created.scaleY = 1;
       if (typeof created.rotation !== 'number') created.rotation = 0;
@@ -143,6 +143,10 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
       );
       imgObj.drawW = drawW;
       imgObj.drawH = drawH;
+
+      // Center the image on the canvas
+      imgObj.x = (state.stageW - drawW) / 2;
+      imgObj.y = (state.stageH - drawH) / 2;
 
       state.addWidget(imgObj);
 
