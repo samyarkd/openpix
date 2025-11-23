@@ -21,14 +21,6 @@ export function useImage(
 
   useEffect(() => {
     active.current = true;
-    // SSR guard
-    if (typeof window === 'undefined') {
-      setImage(null);
-      setStatus('idle');
-      return () => {
-        active.current = false;
-      };
-    }
 
     if (!src) {
       setImage(null);

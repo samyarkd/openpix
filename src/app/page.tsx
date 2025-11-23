@@ -149,7 +149,8 @@ export default function Home() {
     >
       {/* Image */}
       <CanvasGround stageRef={stageRef} />
-      {/* Export Options */}
+
+      {/* Export Options (portal) */}
       <ExportOptions stageRef={stageRef} />
     </div>
   );
