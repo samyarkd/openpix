@@ -16,8 +16,11 @@ export function computeStageScale(
     return 1;
   }
 
+  const scaleX = containerW / canvasW;
+  const scaleY = containerH / canvasH;
+
   // Calculate the scale to fit the container while maintaining aspect ratio
-  return Math.min(containerW / canvasW, containerH / canvasH);
+  return Math.min(scaleX, scaleY);
 }
 
 export function computeRootDimensions(

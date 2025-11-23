@@ -93,9 +93,7 @@ export const CROP_SIZE = 30;
 // Slice state/action contracts
 export type CanvasSlice = CanvasData & {
   container: Container;
-  setCanvasDate: (data: Partial<CanvasData>) => void;
   setContainer: (container: Container) => void;
-  handleResize: () => void;
 };
 
 export type CropSlice = {
