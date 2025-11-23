@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 import CanvasGround from '~/components/canvas-ground';
+import { DoSomethingHint } from '~/components/do-something-hint';
 import ExportOptions from '~/components/export-options';
 import { useSidebar } from '~/components/ui/sidebar';
 import { useActiveTab } from '~/hooks/use-active-tab';
@@ -136,6 +137,9 @@ export default function Home() {
       }
       ref={containerRef}
     >
+      {/* Do something hint */}
+      <DoSomethingHint />
+
       {/* Image */}
       <CanvasGround stageRef={stageRef} />
 

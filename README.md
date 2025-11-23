@@ -9,3 +9,5 @@ Open Source Online Image Editor.
 - [ ] a 100x100 preview of the widgets will be nice in the layers list
 - [ ] guide to build the layer thing [layers](https://claude.ai/share/26a27563-16ff-458f-8b54-792b78149d58)
 - [ ] when adding new images they should fit inside the canvas width/4 and height/4
+
+- [ ] on delete key button pressed delete selected widgets
