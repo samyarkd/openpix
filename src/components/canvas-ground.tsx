@@ -107,109 +107,111 @@ function CanvasGround({ stageRef }: CanvasProps) {
   }, [selectedWidgetIds, activeTab]);
 
   return (
-    <div className="bg-background outline outline-border relative">
-      <GridPattern width={15} height={15} />
+    <div className="absolute inset-0 grid">
+      <div className="bg-background outline outline-border relative grid m-auto [&_#konvajs-content]:m-auto">
+        <GridPattern width={15} height={15} />
 
-      <Stage
-        width={computePaddingAndScale(stageW, stageScale)}
-        height={computePaddingAndScale(stageH, stageScale)}
-        scaleX={stageScale}
-        scaleY={stageScale}
-        ref={stageRef}
-        key={`${stageW}x${stageH}`}
-        onMouseDown={handleStageMouseDown}
-        onMouseMove={handleStageMouseMove}
-        onMouseUp={handleStageMouseUp}
-        onClick={handleStageClick}
-        onTap={handleStageClick}
-      >
-        <Layer>
-          {/* Dynamically rendered widgets (nodes) */}
-          {widgets.map((w) => {
-            return (
-              <Group
-                name="selectable object"
-                key={w.id}
-                id={w.id}
-                draggable
-                x={w.x}
-                y={w.y}
-                scaleX={w.scaleX}
-                scaleY={w.scaleY}
-                rotation={w.rotation}
-                ref={(node) => {
-                  if (node) groupRefs.current.set(w.id, node);
-                  else groupRefs.current.delete(w.id);
-                }}
-                onDragMove={handleDragMove}
-                onDragEnd={handleDragEnd}
-                onTransformEnd={handleTransformEnd}
-              >
-                {w.type === 'image' && <ImageWithFilters image={w} />}
-                {w.type === 'text' && (
-                  <Text
-                    align={w.align}
-                    text={w.text}
-                    fontSize={w.fontSize}
-                    fill={w.fill}
-                    fontStyle={w.fontStyle}
-                    fontFamily={w.fontFamily}
-                    textDecoration={w.textDecoration}
-                    stroke={w.strokeColor}
-                    strokeWidth={w.strokeWidth}
-                    shadowEnabled={w.shadowEnabled}
-                    shadowBlur={w.shadowBlur}
-                    shadowColor={w.shadowColor}
-                    shadowOffsetX={w.shadowOffsetX}
-                    shadowOffsetY={w.shadowOffsetY}
-                  />
-                )}
-              </Group>
-            );
-          })}
-        </Layer>
-
-        <Layer>
-          <Transformer
-            ref={trRef}
-            rotateEnabled
-            boundBoxFunc={(oldBox, newBox) => {
-              if (newBox.width < 5 || newBox.height < 5) {
-                return oldBox;
-              }
-              return newBox;
-            }}
-            enabledAnchors={[
-              'top-left',
-              'top-right',
-              'bottom-left',
-              'bottom-right',
-              'middle-left',
-              'middle-right',
-              'top-center',
-              'bottom-center',
-            ]}
-          />
-        </Layer>
-
-        {/* Selection rectangle */}
-        {selectionRect.visible && (
+        <Stage
+          width={computePaddingAndScale(stageW, stageScale)}
+          height={computePaddingAndScale(stageH, stageScale)}
+          scaleX={stageScale}
+          scaleY={stageScale}
+          ref={stageRef}
+          key={`${stageW}x${stageH}`}
+          onMouseDown={handleStageMouseDown}
+          onMouseMove={handleStageMouseMove}
+          onMouseUp={handleStageMouseUp}
+          onClick={handleStageClick}
+          onTap={handleStageClick}
+        >
           <Layer>
-            <Rect
-              x={Math.min(selectionRect.x1, selectionRect.x2)}
-              y={Math.min(selectionRect.y1, selectionRect.y2)}
-              width={Math.abs(selectionRect.x2 - selectionRect.x1)}
-              height={Math.abs(selectionRect.y2 - selectionRect.y1)}
-              fill="rgba(0, 90, 255, 0.15)"
-              stroke="rgba(0,90,255,0.6)"
-              dash={[4, 4]}
+            {/* Dynamically rendered widgets (nodes) */}
+            {widgets.map((w) => {
+              return (
+                <Group
+                  name="selectable object"
+                  key={w.id}
+                  id={w.id}
+                  draggable
+                  x={w.x}
+                  y={w.y}
+                  scaleX={w.scaleX}
+                  scaleY={w.scaleY}
+                  rotation={w.rotation}
+                  ref={(node) => {
+                    if (node) groupRefs.current.set(w.id, node);
+                    else groupRefs.current.delete(w.id);
+                  }}
+                  onDragMove={handleDragMove}
+                  onDragEnd={handleDragEnd}
+                  onTransformEnd={handleTransformEnd}
+                >
+                  {w.type === 'image' && <ImageWithFilters image={w} />}
+                  {w.type === 'text' && (
+                    <Text
+                      align={w.align}
+                      text={w.text}
+                      fontSize={w.fontSize}
+                      fill={w.fill}
+                      fontStyle={w.fontStyle}
+                      fontFamily={w.fontFamily}
+                      textDecoration={w.textDecoration}
+                      stroke={w.strokeColor}
+                      strokeWidth={w.strokeWidth}
+                      shadowEnabled={w.shadowEnabled}
+                      shadowBlur={w.shadowBlur}
+                      shadowColor={w.shadowColor}
+                      shadowOffsetX={w.shadowOffsetX}
+                      shadowOffsetY={w.shadowOffsetY}
+                    />
+                  )}
+                </Group>
+              );
+            })}
+          </Layer>
+
+          <Layer>
+            <Transformer
+              ref={trRef}
+              rotateEnabled
+              boundBoxFunc={(oldBox, newBox) => {
+                if (newBox.width < 5 || newBox.height < 5) {
+                  return oldBox;
+                }
+                return newBox;
+              }}
+              enabledAnchors={[
+                'top-left',
+                'top-right',
+                'bottom-left',
+                'bottom-right',
+                'middle-left',
+                'middle-right',
+                'top-center',
+                'bottom-center',
+              ]}
             />
           </Layer>
-        )}
-      </Stage>
 
-      {/* Canvas Resize/Crop frame */}
-      <StageCropFrame />
+          {/* Selection rectangle */}
+          {selectionRect.visible && (
+            <Layer>
+              <Rect
+                x={Math.min(selectionRect.x1, selectionRect.x2)}
+                y={Math.min(selectionRect.y1, selectionRect.y2)}
+                width={Math.abs(selectionRect.x2 - selectionRect.x1)}
+                height={Math.abs(selectionRect.y2 - selectionRect.y1)}
+                fill="rgba(0, 90, 255, 0.15)"
+                stroke="rgba(0,90,255,0.6)"
+                dash={[4, 4]}
+              />
+            </Layer>
+          )}
+        </Stage>
+
+        {/* Canvas Resize/Crop frame */}
+        <StageCropFrame />
+      </div>
     </div>
   );
 }

@@ -26,12 +26,9 @@ export default function Home() {
     if (!containerRef.current) return;
     const w = containerRef.current?.clientWidth || 0;
     const h = containerRef.current?.clientHeight || 0;
+
     setContainer({ width: w, height: h });
-  }, [
-    containerRef.current?.clientWidth,
-    containerRef.current?.clientHeight,
-    activeTab,
-  ]);
+  }, [setContainer]);
 
   useEffect(() => {
     measure();
@@ -42,17 +39,7 @@ export default function Home() {
       ro.observe(containerRef.current);
     }
 
-    // Debounced window resize handler
-    let resizeTimeout: NodeJS.Timeout;
-    const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(measure, 100);
-    };
-
-    window.addEventListener('resize', handleResize);
     return () => {
-      window.removeEventListener('resize', handleResize);
-      clearTimeout(resizeTimeout);
       ro?.disconnect();
     };
   }, [measure]);
@@ -144,7 +131,9 @@ export default function Home() {
     <div
       id="canvas-container-page"
       data-sidebar-open={open}
-      className={'isolate flex items-center justify-center w-full h-full'}
+      className={
+        'isolate flex items-center justify-center w-full h-full relative'
+      }
       ref={containerRef}
     >
       {/* Image */}

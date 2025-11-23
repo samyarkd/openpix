@@ -57,7 +57,6 @@ const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
       const quality = exportMime === 'image/png' ? 1 : 0.92;
       // Adjust pixelRatio for selected crop area
       const pixelRatio = stageW > 0 ? (stageW * desiredScale) / stageH : 1;
-      console.log('stageW', 'stageH');
 
       await downloadStage(stage, `export.${ext}`, {
         mimeType: exportMime,
