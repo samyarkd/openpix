@@ -1,3 +1,4 @@
+import { CONTAINER_PADDING } from '~/constants';
 import type { SliceCreator } from '../editor.types';
 import { type CanvasSlice } from '../editor.types';
 import { computeStageScale } from '../utils/geometry';
@@ -15,8 +16,8 @@ export const createCanvasSlice: SliceCreator<CanvasSlice> = (set) => ({
       // state.container = container;
 
       state.container = {
-        height: container.height - 10,
-        width: container.width - 10,
+        height: container.height - CONTAINER_PADDING,
+        width: container.width - CONTAINER_PADDING,
       };
 
       const scale = computeStageScale(

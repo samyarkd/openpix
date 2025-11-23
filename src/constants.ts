@@ -19,3 +19,5 @@ export const googleFonts = [
   'Ubuntu',
   'UnifrakturMaguntia',
 ] as const;
+
+export const CONTAINER_PADDING = 30 as const;
