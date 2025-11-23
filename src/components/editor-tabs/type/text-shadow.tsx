@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Switch } from '~/components/ui/switch';
@@ -15,18 +15,117 @@ const TextShadow = memo(
     shadowOffsetY?: number;
   }) => {
     const updateWidget = useEditorStore((state) => state.updateWidget);
+    const [localShadowEnabled, setLocalShadowEnabled] = useState(
+      props.shadowEnabled
+    );
+    const [localShadowBlur, setLocalShadowBlur] = useState(props.shadowBlur);
+    const [localShadowColor, setLocalShadowColor] = useState(props.shadowColor);
+    const [localShadowOffsetX, setLocalShadowOffsetX] = useState(
+      props.shadowOffsetX
+    );
+    const [localShadowOffsetY, setLocalShadowOffsetY] = useState(
+      props.shadowOffsetY
+    );
+    const commitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+      setLocalShadowEnabled(props.shadowEnabled);
+    }, [props.shadowEnabled]);
+
+    useEffect(() => {
+      setLocalShadowBlur(props.shadowBlur);
+    }, [props.shadowBlur]);
+
+    useEffect(() => {
+      setLocalShadowColor(props.shadowColor);
+    }, [props.shadowColor]);
+
+    useEffect(() => {
+      setLocalShadowOffsetX(props.shadowOffsetX);
+    }, [props.shadowOffsetX]);
+
+    useEffect(() => {
+      setLocalShadowOffsetY(props.shadowOffsetY);
+    }, [props.shadowOffsetY]);
+
+    useEffect(() => {
+      return () => {
+        if (commitTimeoutRef.current) {
+          clearTimeout(commitTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    const commitChanges = useCallback(() => {
+      updateWidget<'text'>(props.widgetId, {
+        shadowEnabled: localShadowEnabled,
+        shadowBlur: localShadowBlur,
+        shadowColor: localShadowColor,
+        shadowOffsetX: localShadowOffsetX,
+        shadowOffsetY: localShadowOffsetY,
+      });
+    }, [
+      updateWidget,
+      props.widgetId,
+      localShadowEnabled,
+      localShadowBlur,
+      localShadowColor,
+      localShadowOffsetX,
+      localShadowOffsetY,
+    ]);
+
+    const debouncedCommit = useCallback(() => {
+      if (commitTimeoutRef.current) clearTimeout(commitTimeoutRef.current);
+      commitTimeoutRef.current = setTimeout(commitChanges, 100);
+    }, [commitChanges]);
+
+    const handleShadowEnabledChange = useCallback(
+      (checked: boolean) => {
+        setLocalShadowEnabled(checked);
+        updateWidget<'text'>(props.widgetId, { shadowEnabled: checked }); // Immediate for toggle
+      },
+      [updateWidget, props.widgetId]
+    );
+
+    const handleShadowBlurChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLocalShadowBlur(Number(e.target.value));
+        debouncedCommit();
+      },
+      [debouncedCommit]
+    );
+
+    const handleShadowColorChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLocalShadowColor(e.target.value as HexColor);
+        debouncedCommit();
+      },
+      [debouncedCommit]
+    );
+
+    const handleShadowOffsetXChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLocalShadowOffsetX(Number(e.target.value));
+        debouncedCommit();
+      },
+      [debouncedCommit]
+    );
+
+    const handleShadowOffsetYChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLocalShadowOffsetY(Number(e.target.value));
+        debouncedCommit();
+      },
+      [debouncedCommit]
+    );
 
     return (
       <div className="flex flex-col gap-4">
         <div className="flex items-center space-x-2">
           <Switch
             id="text-shadow-enabled"
-            checked={props.shadowEnabled}
-            onCheckedChange={(checked) => {
-              updateWidget<'text'>(props.widgetId, {
-                shadowEnabled: checked,
-              });
-            }}
+            checked={localShadowEnabled}
+            onCheckedChange={handleShadowEnabledChange}
           />
           <Label htmlFor="text-shadow-enabled">Text Shadow</Label>
         </div>
@@ -38,12 +137,8 @@ const TextShadow = memo(
                 <Input
                   id="text-shadow-blur"
                   type="number"
-                  value={props.shadowBlur}
-                  onChange={(e) => {
-                    updateWidget<'text'>(props.widgetId, {
-                      shadowBlur: Number(e.target.value),
-                    });
-                  }}
+                  value={localShadowBlur}
+                  onChange={handleShadowBlurChange}
                 />
               </div>
               <div className="flex flex-col gap-2">
@@ -51,12 +146,8 @@ const TextShadow = memo(
                 <Input
                   id="text-shadow-color"
                   type="color"
-                  value={props.shadowColor}
-                  onChange={(e) => {
-                    updateWidget<'text'>(props.widgetId, {
-                      shadowColor: e.target.value as HexColor,
-                    });
-                  }}
+                  value={localShadowColor}
+                  onChange={handleShadowColorChange}
                 />
               </div>
             </div>
@@ -66,12 +157,8 @@ const TextShadow = memo(
                 <Input
                   id="text-shadow-offset-x"
                   type="number"
-                  value={props.shadowOffsetX}
-                  onChange={(e) => {
-                    updateWidget<'text'>(props.widgetId, {
-                      shadowOffsetX: Number(e.target.value),
-                    });
-                  }}
+                  value={localShadowOffsetX}
+                  onChange={handleShadowOffsetXChange}
                 />
               </div>
               <div className="flex flex-col gap-2">
@@ -79,12 +166,8 @@ const TextShadow = memo(
                 <Input
                   id="text-shadow-offset-y"
                   type="number"
-                  value={props.shadowOffsetY}
-                  onChange={(e) => {
-                    updateWidget<'text'>(props.widgetId, {
-                      shadowOffsetY: Number(e.target.value),
-                    });
-                  }}
+                  value={localShadowOffsetY}
+                  onChange={handleShadowOffsetYChange}
                 />
               </div>
             </div>

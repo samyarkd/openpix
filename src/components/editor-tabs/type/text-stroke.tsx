@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { useEditorStore } from '~/store/editor.store';
@@ -11,6 +11,56 @@ const TextStroke = memo(
     widgetId: string;
   }) => {
     const updateWidget = useEditorStore((state) => state.updateWidget);
+    const [localStrokeColor, setLocalStrokeColor] = useState(props.strokeColor);
+    const [localStrokeWidth, setLocalStrokeWidth] = useState(
+      props.strokeWidth || 0
+    );
+    const commitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+      setLocalStrokeColor(props.strokeColor);
+    }, [props.strokeColor]);
+
+    useEffect(() => {
+      setLocalStrokeWidth(props.strokeWidth || 0);
+    }, [props.strokeWidth]);
+
+    useEffect(() => {
+      return () => {
+        if (commitTimeoutRef.current) {
+          clearTimeout(commitTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    const commitChanges = useCallback(() => {
+      updateWidget<'text'>(props.widgetId, {
+        strokeColor: localStrokeColor,
+        strokeWidth: localStrokeWidth,
+      });
+    }, [updateWidget, props.widgetId, localStrokeColor, localStrokeWidth]);
+
+    const debouncedCommit = useCallback(() => {
+      if (commitTimeoutRef.current) clearTimeout(commitTimeoutRef.current);
+      commitTimeoutRef.current = setTimeout(commitChanges, 100);
+    }, [commitChanges]);
+
+    const handleStrokeColorChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLocalStrokeColor(e.target.value as HexColor);
+        debouncedCommit();
+      },
+      [debouncedCommit]
+    );
+
+    const handleStrokeWidthChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newSize = Number(e.target.value);
+        setLocalStrokeWidth(isNaN(newSize) ? 0 : newSize);
+        debouncedCommit();
+      },
+      [debouncedCommit]
+    );
 
     return (
       <div className="flex gap-2">
@@ -20,14 +70,8 @@ const TextStroke = memo(
           <Input
             id="size"
             type="number"
-            onChange={(e) => {
-              e.preventDefault();
-              const newSize = Number(e.target.value);
-              updateWidget<'text'>(props.widgetId, {
-                strokeWidth: isNaN(newSize) ? props.strokeWidth : newSize,
-              });
-            }}
-            value={props.strokeWidth || 0}
+            onChange={handleStrokeWidthChange}
+            value={localStrokeWidth}
           />
         </div>
         {/* Color */}
@@ -36,13 +80,8 @@ const TextStroke = memo(
           <Input
             id="color"
             type="color"
-            onChange={(e) => {
-              e.preventDefault();
-              updateWidget<'text'>(props.widgetId, {
-                strokeColor: e.target.value as HexColor,
-              });
-            }}
-            value={props.strokeColor}
+            onChange={handleStrokeColorChange}
+            value={localStrokeColor}
           />
         </div>
       </div>
