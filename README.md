@@ -1,6 +1,15 @@
 # OpenPix
 
-Open Source Online Image Editor.
+Open Source Online Image Editor, that aims to provide the best user experience.
+
+## Main Features
+
+- All basic editor features
+- Fully Local (No uploading images to servers)
+- Free and Open Source
+- Fast and Optimized
+- No Ads
+- No AI editing popups (unless there is demand for it 🤷‍♂️)
 
 ## Known Issues
 
