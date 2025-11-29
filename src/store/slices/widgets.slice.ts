@@ -52,8 +52,10 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
    * @param w Widget data
    */
   addWidget: (w) => {
+    const newWidgetId = crypto.randomUUID();
+
     set((state) => {
-      const created = { id: crypto.randomUUID(), ...w } as Widget;
+      const created = { ...w, id: newWidgetId } as Widget;
       if (typeof created.x !== 'number') created.x = state.stageW / 2;
       if (typeof created.y !== 'number') created.y = state.stageH / 2;
       if (typeof created.scaleX !== 'number') created.scaleX = 1;
@@ -62,6 +64,8 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
 
       state.widgets.push(castDraft(created));
     });
+
+    get().setSelectedWidgetIds([newWidgetId]);
   },
   /**
    * Update the widget data
@@ -123,6 +127,7 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
 
       const imgObj: ImageItem = {
         type: 'image',
+        // the id will be overwritten (it's invalid)
         id: crypto.randomUUID(),
         img: loadedImg,
         filters: defaultFilters,
