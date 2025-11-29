@@ -1,9 +1,9 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback } from 'react';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Switch } from '~/components/ui/switch';
 import { useEditorStore } from '~/store/editor.store';
-import { HexColor } from '../../../../types';
+import { HexColor } from '~/types';
 
 const TextShadow = memo(
   (props: {
@@ -15,108 +15,48 @@ const TextShadow = memo(
     shadowOffsetY?: number;
   }) => {
     const updateWidget = useEditorStore((state) => state.updateWidget);
-    const [localShadowEnabled, setLocalShadowEnabled] = useState(
-      props.shadowEnabled
-    );
-    const [localShadowBlur, setLocalShadowBlur] = useState(props.shadowBlur);
-    const [localShadowColor, setLocalShadowColor] = useState(props.shadowColor);
-    const [localShadowOffsetX, setLocalShadowOffsetX] = useState(
-      props.shadowOffsetX
-    );
-    const [localShadowOffsetY, setLocalShadowOffsetY] = useState(
-      props.shadowOffsetY
-    );
-    const commitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-    useEffect(() => {
-      setLocalShadowEnabled(props.shadowEnabled);
-    }, [props.shadowEnabled]);
-
-    useEffect(() => {
-      setLocalShadowBlur(props.shadowBlur);
-    }, [props.shadowBlur]);
-
-    useEffect(() => {
-      setLocalShadowColor(props.shadowColor);
-    }, [props.shadowColor]);
-
-    useEffect(() => {
-      setLocalShadowOffsetX(props.shadowOffsetX);
-    }, [props.shadowOffsetX]);
-
-    useEffect(() => {
-      setLocalShadowOffsetY(props.shadowOffsetY);
-    }, [props.shadowOffsetY]);
-
-    useEffect(() => {
-      return () => {
-        if (commitTimeoutRef.current) {
-          clearTimeout(commitTimeoutRef.current);
-        }
-      };
-    }, []);
-
-    const commitChanges = useCallback(() => {
-      updateWidget<'text'>(props.widgetId, {
-        shadowEnabled: localShadowEnabled,
-        shadowBlur: localShadowBlur,
-        shadowColor: localShadowColor,
-        shadowOffsetX: localShadowOffsetX,
-        shadowOffsetY: localShadowOffsetY,
-      });
-    }, [
-      updateWidget,
-      props.widgetId,
-      localShadowEnabled,
-      localShadowBlur,
-      localShadowColor,
-      localShadowOffsetX,
-      localShadowOffsetY,
-    ]);
-
-    const debouncedCommit = useCallback(() => {
-      if (commitTimeoutRef.current) clearTimeout(commitTimeoutRef.current);
-      commitTimeoutRef.current = setTimeout(commitChanges, 100);
-    }, [commitChanges]);
 
     const handleShadowEnabledChange = useCallback(
       (checked: boolean) => {
-        setLocalShadowEnabled(checked);
-        updateWidget<'text'>(props.widgetId, { shadowEnabled: checked }); // Immediate for toggle
+        updateWidget<'text'>(props.widgetId, { shadowEnabled: checked });
       },
       [updateWidget, props.widgetId]
     );
 
     const handleShadowBlurChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        setLocalShadowBlur(Number(e.target.value));
-        debouncedCommit();
+        updateWidget<'text'>(props.widgetId, {
+          shadowBlur: Number(e.target.value),
+        });
       },
-      [debouncedCommit]
+      [updateWidget, props.widgetId]
     );
 
     const handleShadowColorChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        setLocalShadowColor(e.target.value as HexColor);
-        debouncedCommit();
+        updateWidget<'text'>(props.widgetId, {
+          shadowColor: e.target.value as HexColor,
+        });
       },
-      [debouncedCommit]
+      [updateWidget, props.widgetId]
     );
 
     const handleShadowOffsetXChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        setLocalShadowOffsetX(Number(e.target.value));
-        debouncedCommit();
+        updateWidget<'text'>(props.widgetId, {
+          shadowOffsetX: Number(e.target.value),
+        });
       },
-      [debouncedCommit]
+      [updateWidget, props.widgetId]
     );
 
     const handleShadowOffsetYChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        setLocalShadowOffsetY(Number(e.target.value));
-        debouncedCommit();
+        updateWidget<'text'>(props.widgetId, {
+          shadowOffsetY: Number(e.target.value),
+        });
       },
-      [debouncedCommit]
+      [updateWidget, props.widgetId]
     );
 
     return (
@@ -124,7 +64,7 @@ const TextShadow = memo(
         <div className="flex items-center space-x-2">
           <Switch
             id="text-shadow-enabled"
-            checked={localShadowEnabled}
+            checked={props.shadowEnabled}
             onCheckedChange={handleShadowEnabledChange}
           />
           <Label htmlFor="text-shadow-enabled">Text Shadow</Label>
@@ -137,7 +77,7 @@ const TextShadow = memo(
                 <Input
                   id="text-shadow-blur"
                   type="number"
-                  value={localShadowBlur}
+                  value={props.shadowBlur}
                   onChange={handleShadowBlurChange}
                 />
               </div>
@@ -146,7 +86,7 @@ const TextShadow = memo(
                 <Input
                   id="text-shadow-color"
                   type="color"
-                  value={localShadowColor}
+                  value={props.shadowColor}
                   onChange={handleShadowColorChange}
                 />
               </div>
@@ -157,7 +97,7 @@ const TextShadow = memo(
                 <Input
                   id="text-shadow-offset-x"
                   type="number"
-                  value={localShadowOffsetX}
+                  value={props.shadowOffsetX}
                   onChange={handleShadowOffsetXChange}
                 />
               </div>
@@ -166,7 +106,7 @@ const TextShadow = memo(
                 <Input
                   id="text-shadow-offset-y"
                   type="number"
-                  value={localShadowOffsetY}
+                  value={props.shadowOffsetY}
                   onChange={handleShadowOffsetYChange}
                 />
               </div>

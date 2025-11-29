@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import { HexColor } from '../../types';
+import { HexColor } from '~/types';
 
 // Editor Tabs
 export type EditorTab =
@@ -78,17 +78,18 @@ export type Crop = {
 
 export type Container = { width: number; height: number };
 
-export type CanvasData = {
-  stageW: number;
-  stageH: number;
-  stageScale: number;
-};
-
 export const CROP_SIZE = 30;
 
 // Slice state/action contracts
-export type CanvasSlice = CanvasData & {
+export type CanvasSlice = {
+  backgroundColor: string | null;
+  setBackgrondColor: (c?: string | null) => void;
+
+  stageW: number;
+  stageH: number;
+  stageScale: number;
   container: Container;
+
   setContainer: (container: Container) => void;
 };
 

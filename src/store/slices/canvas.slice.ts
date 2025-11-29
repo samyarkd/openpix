@@ -4,7 +4,14 @@ import { type CanvasSlice } from '../editor.types';
 import { computeStageScale } from '../utils/geometry';
 
 export const createCanvasSlice: SliceCreator<CanvasSlice> = (set) => ({
-  // CanvasData
+  backgroundColor: null,
+  setBackgrondColor: (c) => {
+    set((s) => {
+      s.backgroundColor = c || null;
+    });
+  },
+
+  // Canvas Data
   stageW: 700,
   stageH: 700,
   stageScale: 1,

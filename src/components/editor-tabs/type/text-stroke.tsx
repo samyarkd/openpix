@@ -1,8 +1,8 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback } from 'react';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { useEditorStore } from '~/store/editor.store';
-import { HexColor } from '../../../../types';
+import { HexColor } from '~/types';
 
 const TextStroke = memo(
   (props: {
@@ -11,55 +11,24 @@ const TextStroke = memo(
     widgetId: string;
   }) => {
     const updateWidget = useEditorStore((state) => state.updateWidget);
-    const [localStrokeColor, setLocalStrokeColor] = useState(props.strokeColor);
-    const [localStrokeWidth, setLocalStrokeWidth] = useState(
-      props.strokeWidth || 0
-    );
-    const commitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-    useEffect(() => {
-      setLocalStrokeColor(props.strokeColor);
-    }, [props.strokeColor]);
-
-    useEffect(() => {
-      setLocalStrokeWidth(props.strokeWidth || 0);
-    }, [props.strokeWidth]);
-
-    useEffect(() => {
-      return () => {
-        if (commitTimeoutRef.current) {
-          clearTimeout(commitTimeoutRef.current);
-        }
-      };
-    }, []);
-
-    const commitChanges = useCallback(() => {
-      updateWidget<'text'>(props.widgetId, {
-        strokeColor: localStrokeColor,
-        strokeWidth: localStrokeWidth,
-      });
-    }, [updateWidget, props.widgetId, localStrokeColor, localStrokeWidth]);
-
-    const debouncedCommit = useCallback(() => {
-      if (commitTimeoutRef.current) clearTimeout(commitTimeoutRef.current);
-      commitTimeoutRef.current = setTimeout(commitChanges, 100);
-    }, [commitChanges]);
 
     const handleStrokeColorChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
-        setLocalStrokeColor(e.target.value as HexColor);
-        debouncedCommit();
+        updateWidget<'text'>(props.widgetId, {
+          strokeColor: e.target.value as HexColor,
+        });
       },
-      [debouncedCommit]
+      [updateWidget, props.widgetId]
     );
 
     const handleStrokeWidthChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         const newSize = Number(e.target.value);
-        setLocalStrokeWidth(isNaN(newSize) ? 0 : newSize);
-        debouncedCommit();
+        updateWidget<'text'>(props.widgetId, {
+          strokeWidth: isNaN(newSize) ? 0 : newSize,
+        });
       },
-      [debouncedCommit]
+      [updateWidget, props.widgetId]
     );
 
     return (
@@ -71,7 +40,7 @@ const TextStroke = memo(
             id="size"
             type="number"
             onChange={handleStrokeWidthChange}
-            value={localStrokeWidth}
+            value={props.strokeWidth || 0}
           />
         </div>
         {/* Color */}
@@ -81,7 +50,7 @@ const TextStroke = memo(
             id="color"
             type="color"
             onChange={handleStrokeColorChange}
-            value={localStrokeColor}
+            value={props.strokeColor}
           />
         </div>
       </div>

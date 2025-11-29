@@ -1,6 +1,8 @@
 import * as React from 'react';
 
 import { cn } from '~/lib/utils';
+import { Label } from './label';
+import { Undo2Icon } from 'lucide-react';
 
 function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
   return (
@@ -18,4 +20,46 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
   );
 }
 
-export { Input };
+type InputRowProps = {
+  type: React.HTMLInputTypeAttribute;
+  onChange: (v?: string) => void;
+  value?: string;
+  label?: string;
+  defaultValue?: string;
+};
+
+function InputRow(props: InputRowProps) {
+  const id = React.useId();
+
+  return (
+    <div className="flex gap-2 flex-col flex-1">
+      {props.label && (
+        <Label className="capitalize" htmlFor={id}>
+          {props.label}
+
+          {/* Reset Icon */}
+          {props.defaultValue !== props.value && (
+            <Undo2Icon
+              className="cursor-pointer"
+              size={14}
+              onClick={() => {
+                props.onChange(props.defaultValue);
+              }}
+            />
+          )}
+        </Label>
+      )}
+      <Input
+        id={id}
+        type={props.type}
+        onChange={(e) => {
+          e.preventDefault();
+          props.onChange(e.target.value);
+        }}
+        value={props.value}
+      />
+    </div>
+  );
+}
+
+export { Input, InputRow };

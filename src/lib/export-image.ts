@@ -22,7 +22,15 @@ export function exportStageDataURL(
       : 1,
   } = options;
 
-  return stage.toDataURL({ mimeType, quality, pixelRatio, x: options.x, y: options.y, width: options.width, height: options.height });
+  return stage.toDataURL({
+    mimeType,
+    quality,
+    pixelRatio,
+    x: options.x,
+    y: options.y,
+    width: options.width,
+    height: options.height,
+  });
 }
 
 export async function exportStageBlob(

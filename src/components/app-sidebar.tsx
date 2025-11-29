@@ -23,7 +23,7 @@ import StickerTab from './editor-tabs/StickerTab';
 import TypeTab from './editor-tabs/TypeTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import ActiveWidgetSettings from './active-widget-settings';
-import ImageDropZone from './image-input';
+import EnhanceTab from './editor-tabs/EnhanceTab';
 
 export function AppSidebar() {
   const { activeTab, setActiveTab } = useActiveTab();
@@ -67,7 +67,7 @@ export function AppSidebar() {
 
               {/* Tab Content */}
               <TabsContent value="enhance">
-                <ImageDropZone />
+                <EnhanceTab />
               </TabsContent>
               <TabsContent value="crop">
                 <CropTab />

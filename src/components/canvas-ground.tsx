@@ -1,7 +1,7 @@
 'use client';
 
 import Konva from 'konva';
-import { useEffect, useRef } from 'react';
+import { useDeferredValue, useEffect, useRef } from 'react';
 
 import { Group, Layer, Rect, Stage, Text, Transformer } from 'react-konva';
 import { useShallow } from 'zustand/shallow';
@@ -20,6 +20,7 @@ type CanvasProps = {
 
 function CanvasGround({ stageRef }: CanvasProps) {
   const {
+    backgroundColor,
     stageH,
     stageW,
     stageScale,
@@ -31,6 +32,7 @@ function CanvasGround({ stageRef }: CanvasProps) {
     updateWidgetTransform,
   } = useEditorStore(
     useShallow((state) => ({
+      backgroundColor: state.backgroundColor,
       activeTab: state.activeTab,
       stageW: state.stageW,
       stageH: state.stageH,
@@ -124,8 +126,20 @@ function CanvasGround({ stageRef }: CanvasProps) {
           onClick={handleStageClick}
           onTap={handleStageClick}
         >
+          {/* Background Color */}
+          {backgroundColor && (
+            <Layer>
+              <Rect
+                width={computePaddingAndScale(stageW, stageScale) * 1.3}
+                height={computePaddingAndScale(stageH, stageScale) * 1.3}
+                fill={backgroundColor}
+                listening={false}
+              />
+            </Layer>
+          )}
+
+          {/* Dynamically rendered widgets (nodes) */}
           <Layer>
-            {/* Dynamically rendered widgets (nodes) */}
             {widgets.map((w) => {
               return (
                 <Group
@@ -170,6 +184,7 @@ function CanvasGround({ stageRef }: CanvasProps) {
             })}
           </Layer>
 
+          {/* Shape Transformer rectangle */}
           <Layer>
             <Transformer
               ref={trRef}

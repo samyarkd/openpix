@@ -95,19 +95,16 @@ function EditorSliderBase({
 // We intentionally ignore `label` and `onValueChange` identity in the comparison.
 // - Label updates are tied to `value` changes for that slider
 // - onValueChange is stored in a ref internally
-export const EditorSlider = React.memo(
-  EditorSliderBase,
-  (prev, next) => {
-    // Compare primitives and the first numeric values only
-    const sameId = prev.id === next.id;
-    const sameClass = prev.className === next.className;
-    const sameLimits =
-      prev.min === next.min && prev.max === next.max && prev.step === next.step;
-    const prevVal = prev.value?.[0];
-    const nextVal = next.value?.[0];
-    const sameValue = prevVal === nextVal;
-    const sameDefault = prev.defaultValue?.[0] === next.defaultValue?.[0];
+export const EditorSlider = React.memo(EditorSliderBase, (prev, next) => {
+  // Compare primitives and the first numeric values only
+  const sameId = prev.id === next.id;
+  const sameClass = prev.className === next.className;
+  const sameLimits =
+    prev.min === next.min && prev.max === next.max && prev.step === next.step;
+  const prevVal = prev.value?.[0];
+  const nextVal = next.value?.[0];
+  const sameValue = prevVal === nextVal;
+  const sameDefault = prev.defaultValue?.[0] === next.defaultValue?.[0];
 
-    return sameId && sameClass && sameLimits && sameValue && sameDefault;
-  }
-);
+  return sameId && sameClass && sameLimits && sameValue && sameDefault;
+});
