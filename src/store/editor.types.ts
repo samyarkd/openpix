@@ -3,17 +3,13 @@ import { HexColor } from '../../types';
 
 // Editor Tabs
 export type EditorTab =
+  | 'active-widget'
   | 'enhance'
   | 'crop'
   | 'type'
   | 'brush'
   | 'sticker'
   | 'layers';
-
-export interface EditorTabContextType {
-  activeTab: EditorTab;
-  setActiveTab: (tab: EditorTab) => void;
-}
 
 export type Transform = {
   x: number;
@@ -177,7 +173,10 @@ export type WidgetsSlice = {
   moveWidgetToBack: (id: string) => void;
 };
 
-export type UiSlice = EditorTabContextType & {
+export type UiSlice = {
+  activeTab: EditorTab;
+  setActiveTab: (tab: EditorTab) => void;
+
   snapEnabled: boolean;
   setSnapEnabled: (enabled: boolean) => void;
 };

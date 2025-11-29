@@ -18,11 +18,12 @@ import { useActiveTab } from '~/hooks/use-active-tab';
 import { EditorTab } from '~/store/editor.store';
 import BrushTab from './editor-tabs/BrushTab';
 import CropTab from './editor-tabs/CropTab';
-import EnhanceTab from './editor-tabs/EnhanceTab';
 import LayersTab from './editor-tabs/LayersTab';
 import StickerTab from './editor-tabs/StickerTab';
 import TypeTab from './editor-tabs/TypeTab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import ActiveWidgetSettings from './active-widget-settings';
+import ImageDropZone from './image-input';
 
 export function AppSidebar() {
   const { activeTab, setActiveTab } = useActiveTab();
@@ -59,9 +60,14 @@ export function AppSidebar() {
                 </TabsTrigger>
               </TabsList>
 
+              {/* Active Widget Settings */}
+              <TabsContent value="active-widget">
+                <ActiveWidgetSettings />
+              </TabsContent>
+
               {/* Tab Content */}
               <TabsContent value="enhance">
-                <EnhanceTab />
+                <ImageDropZone />
               </TabsContent>
               <TabsContent value="crop">
                 <CropTab />

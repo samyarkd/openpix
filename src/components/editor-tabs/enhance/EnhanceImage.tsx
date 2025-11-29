@@ -3,10 +3,9 @@
 import { useShallow } from 'zustand/shallow';
 import { Button } from '~/components/ui/button';
 import { useEditorStore } from '~/store/editor.store';
-import ImageDropZone from '../image-input';
-import { FilterSlider } from './enhance/filter-slider';
+import { FilterSlider } from './filter-slider';
 
-export default function EnhanceTab() {
+export default function EnhanceImage() {
   // Only subscribe to whether an active image exists to show/hide the tab
   const { hasActive, removeImage, selectedImageId } = useEditorStore(
     useShallow((s) => ({
@@ -20,7 +19,7 @@ export default function EnhanceTab() {
     }))
   );
 
-  if (!hasActive) return <ImageDropZone />;
+  if (!hasActive) return null;
 
   return (
     <div className="p-3 flex flex-col gap-6">
