@@ -6,6 +6,7 @@ import { SidebarInset, SidebarTrigger } from '~/components/ui/sidebar';
 import { AppSidebar } from '~/components/app-sidebar';
 import './globals.css';
 import Providers from './providers';
+import Github from '~/components/github';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -51,8 +52,12 @@ export default function RootLayout({
             <nav className="flex items-start justify-between bg-card ">
               <SidebarTrigger className="cursor-pointer m-1 backdrop-blur-3xl" />
               <div className="p-1 flex items-center gap-2">
+                {/* Github Link */}
+                <Github />
+
                 {/* Dark/Light */}
                 <ModeToggle />
+
                 {/* Export Options */}
                 <div id="export-portal" />
               </div>

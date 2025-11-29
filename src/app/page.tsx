@@ -1,14 +1,18 @@
 'use client';
 import Konva from 'konva';
+import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef } from 'react';
 
 import { useShallow } from 'zustand/shallow';
 import CanvasGround from '~/components/canvas-ground';
 import { DoSomethingHint } from '~/components/do-something-hint';
-import ExportOptions from '~/components/export-options';
 import { useSidebar } from '~/components/ui/sidebar';
 import { useActiveTab } from '~/hooks/use-active-tab';
 import { useEditorStore } from '~/store/editor.store';
+
+const ExportOptions = dynamic(() => import('~/components/export-options'), {
+  ssr: false,
+});
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
