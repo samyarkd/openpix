@@ -11,4 +11,4 @@ Open Source Online Image Editor.
 - [ ] when adding new images they should fit inside the canvas width/4 and height/4
 
 - [ ] on delete key button pressed delete selected widgets
-- [ ] move the stage ref to store and refact canvavs ground
+- [ ] move the stage ref to store and refact canvas ground
