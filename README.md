@@ -20,4 +20,6 @@ Open Source Online Image Editor, that aims to provide the best user experience.
 - [ ] when adding new images they should fit inside the canvas width/4 and height/4
 
 - [ ] on delete key button pressed delete selected widgets
-- [ ] move the stage ref to store and refact canvas ground
+- [ ] move the stage ref to store and refactor canvas ground
+- [ ] create a filters section for images to apply different filters
+- [ ] add advanced pixelate filter to images [pixel-tool](https://github.com/Hugo-Dz/spritefusion-pixel-snapper)
