@@ -22,7 +22,6 @@ const EditSelectedText = memo(() => {
 
   return (
     <div className="flex flex-col gap-4">
-      <RemoveButton widgetId={widget.id} />
       <ContentSection widgetId={widget.id} content={widget.text} />
       <ColorSizeControls
         widgetId={widget.id}
@@ -51,6 +50,7 @@ const EditSelectedText = memo(() => {
         shadowOffsetX={widget.shadowOffsetX}
         shadowOffsetY={widget.shadowOffsetY}
       />
+      <RemoveButton widgetId={widget.id} />
     </div>
   );
 });

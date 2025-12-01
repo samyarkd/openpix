@@ -1,15 +1,14 @@
 'use client';
 
 import { useShallow } from 'zustand/shallow';
-import { Button } from '~/components/ui/button';
 import { useEditorStore } from '~/store/editor.store';
 import { FilterSlider } from './filter-slider';
+import { RemoveButton } from '../type/remove-button';
 
 export default function EnhanceImage() {
   // Only subscribe to whether an active image exists to show/hide the tab
-  const { hasActive, removeImage, selectedImageId } = useEditorStore(
+  const { hasActive, selectedImageId } = useEditorStore(
     useShallow((s) => ({
-      removeImage: s.removeWidget,
       selectedImageId: s.selectedWidgetId,
       hasActive: Boolean(
         s.widgets
@@ -19,16 +18,10 @@ export default function EnhanceImage() {
     }))
   );
 
-  if (!hasActive) return null;
+  if (!hasActive || !selectedImageId) return null;
 
   return (
-    <div className="p-3 flex flex-col gap-6">
-      <Button
-        variant="destructive"
-        onClick={() => removeImage(selectedImageId!)}
-      >
-        Remove Image
-      </Button>
+    <div className="flex flex-col gap-6">
       {/* Brightness */}
       <FilterSlider
         filterKey="brightness"
@@ -165,6 +158,7 @@ export default function EnhanceImage() {
         max={10}
         step={0.2}
       />
+      <RemoveButton widgetId={selectedImageId} />
     </div>
   );
 }
