@@ -40,10 +40,16 @@ export function computeRootDimensions(
 export function computeOverlayDimensions(
   imgW: number,
   imgH: number,
-  stageScale: number
+  stageW: number,
+  stageH: number
 ): { drawW: number; drawH: number } {
-  const drawW = imgW * (stageScale / 2);
-  const drawH = imgH * (stageScale / 2);
+  const availableW = stageW - 20;
+  const availableH = stageH - 20;
+  const scaleX = availableW / imgW;
+  const scaleY = availableH / imgH;
+  const scale = Math.min(scaleX, scaleY);
+  const drawW = imgW * scale;
+  const drawH = imgH * scale;
   return { drawW, drawH };
 }
 

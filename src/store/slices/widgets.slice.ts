@@ -125,10 +125,10 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
       const imgW = loadedImg?.width || 0;
       const imgH = loadedImg?.height || 0;
 
-      const imgObj: ImageItem = {
+      // we omit id because it will be overwritten
+      // later on addWidget function
+      const imgObj: Omit<ImageItem, 'id'> = {
         type: 'image',
-        // the id will be overwritten (it's invalid)
-        id: crypto.randomUUID(),
         img: loadedImg,
         filters: defaultFilters,
         drawW: 0,
@@ -140,11 +140,11 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
         rotation: 0,
       };
 
-      // other new images will be scaled down
       const { drawW, drawH } = computeOverlayDimensions(
         imgW,
         imgH,
-        state.stageScale
+        state.stageW,
+        state.stageH
       );
       imgObj.drawW = drawW;
       imgObj.drawH = drawH;
