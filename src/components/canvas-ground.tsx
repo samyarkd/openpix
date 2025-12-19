@@ -48,6 +48,7 @@ function CanvasGround({ stageRef }: CanvasProps) {
     }))
   );
 
+  const stageWrapperRef = useRef<HTMLDivElement>(null);
   const trRef = useRef<Konva.Transformer | null>(null);
   const groupRefs = useRef<Map<string, Konva.Group | Konva.Node>>(new Map());
 
@@ -64,6 +65,16 @@ function CanvasGround({ stageRef }: CanvasProps) {
   const { handleDragEnd, handleTransformEnd } = useDragTransform(
     updateWidgetTransform
   );
+
+  // Click outside of canvas container to clear selection
+  const onContainerClick: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    if (
+      !stageWrapperRef.current?.contains(e.target as Node) &&
+      e.target instanceof HTMLElement
+    ) {
+      setSelectedWidgetIds([]);
+    }
+  };
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -109,8 +120,8 @@ function CanvasGround({ stageRef }: CanvasProps) {
   }, [selectedWidgetIds, activeTab]);
 
   return (
-    <div className="absolute inset-0 grid">
-      <div className="bg-background outline outline-border relative grid m-auto [&_#konvajs-content]:m-auto">
+    <div className="absolute inset-0 grid" onClick={onContainerClick}>
+      <div ref={stageWrapperRef} className="bg-background outline outline-border relative grid m-auto [&_#konvajs-content]:m-auto">
         <GridPattern width={15} height={15} />
 
         <Stage
