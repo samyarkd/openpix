@@ -1,18 +1,18 @@
 'use client';
 
-import Konva from 'konva'
-import { useEffect, useRef } from 'react'
+import Konva from 'konva';
+import { useEffect, useRef } from 'react';
 
-import { Group, Layer, Rect, Stage, Text, Transformer } from 'react-konva'
-import { useShallow } from 'zustand/shallow'
-import { useDragTransform } from '~/hooks/use-drag-transform'
-import { useSelection } from '~/hooks/use-selection'
-import { useSnapping } from '~/hooks/use-snapping'
-import { useEditorStore } from '~/store/editor.store'
-import { computePaddingAndScale } from '~/store/utils/geometry'
-import StageCropFrame from './editor-tabs/crop/stage-crop-frame'
-import ImageWithFilters from './image-with-filters'
-import { GridPattern } from './magicui/grid-pattern'
+import { Group, Layer, Rect, Stage, Text, Transformer } from 'react-konva';
+import { useShallow } from 'zustand/shallow';
+import { useDragTransform } from '~/hooks/use-drag-transform';
+import { useSelection } from '~/hooks/use-selection';
+import { useSnapping } from '~/hooks/use-snapping';
+import { useEditorStore } from '~/store/editor.store';
+import { computePaddingAndScale } from '~/store/utils/geometry';
+import StageCropFrame from './editor-tabs/crop/stage-crop-frame';
+import ImageWithFilters from './image-with-filters';
+import { GridPattern } from './magicui/grid-pattern';
 
 type CanvasProps = {
   stageRef: React.RefObject<Konva.Stage | null>;
@@ -30,6 +30,7 @@ function CanvasGround({ stageRef }: CanvasProps) {
     activeTab,
     snapEnabled,
     updateWidgetTransform,
+    removeWidgets,
   } = useEditorStore(
     useShallow((state) => ({
       backgroundColor: state.backgroundColor,
@@ -45,6 +46,7 @@ function CanvasGround({ stageRef }: CanvasProps) {
       selectedWidgetIds: state.selectedWidgetIds,
       setSelectedWidgetIds: state.setSelectedWidgetIds,
       updateWidgetTransform: state.updateWidgetTransform,
+      removeWidgets: state.removeWidgets,
     }))
   );
 
@@ -104,6 +106,29 @@ function CanvasGround({ stageRef }: CanvasProps) {
     stage.batchDraw();
   }, [stageW, stageH, stageRef]);
 
+  // Handle delete key for selected widgets
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.key === 'Delete' || e.key === 'Backspace') &&
+        selectedWidgetIds.length > 0
+      ) {
+        // Don't delete if user is typing in an input or textarea
+        if (
+          e.target instanceof HTMLInputElement ||
+          e.target instanceof HTMLTextAreaElement
+        ) {
+          return;
+        }
+        e.preventDefault();
+        removeWidgets(selectedWidgetIds);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedWidgetIds, removeWidgets]);
+
   // Update transformer nodes when selection changes
   useEffect(() => {
     if (!trRef.current) return;
@@ -121,7 +146,10 @@ function CanvasGround({ stageRef }: CanvasProps) {
 
   return (
     <div className="absolute inset-0 grid" onClick={onContainerClick}>
-      <div ref={stageWrapperRef} className="bg-background outline outline-border relative grid m-auto [&_#konvajs-content]:m-auto">
+      <div
+        ref={stageWrapperRef}
+        className="bg-background outline outline-border relative grid m-auto [&_#konvajs-content]:m-auto"
+      >
         <GridPattern width={15} height={15} />
 
         <Stage

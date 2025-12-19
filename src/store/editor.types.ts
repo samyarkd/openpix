@@ -1,5 +1,5 @@
-import type { StateCreator } from 'zustand'
-import { HexColor } from '~/types'
+import type { StateCreator } from 'zustand';
+import { HexColor } from '~/types';
 
 // Editor Tabs
 export type EditorTab =
@@ -161,6 +161,7 @@ export type WidgetsSlice = {
     w: Partial<NewWidget<T>>
   ) => void;
   removeWidget: (wId: string) => void;
+  removeWidgets: (wIds: string[]) => void;
   updateWidgetTransform: (id: string, transform: Partial<Transform>) => void;
 
   // Image specific

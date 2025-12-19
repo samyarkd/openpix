@@ -95,6 +95,20 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
     });
   },
   /**
+   * This function will remove multiple widgets from the widgets
+   * @param wIds Array of widget IDs
+   */
+  removeWidgets: (wIds: string[]) => {
+    const s = get();
+
+    // this should be seperate and not part of the set function.
+    s.setSelectedWidgetIds([])
+
+    set((state) => {
+      state.widgets = state.widgets.filter((w) => !wIds.includes(w.id));
+    });
+  },
+  /**
    * Updates the transformation properties of a widget with the given id.
    *
    * @param id The id of the widget to update.
