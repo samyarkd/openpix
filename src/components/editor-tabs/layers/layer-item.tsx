@@ -1,28 +1,21 @@
-import { useShallow } from 'zustand/shallow';
-import { ArrowDown, ArrowUp } from 'lucide-react';
-import { Button } from '~/components/ui/button';
-import { useEditorStore } from '~/store/editor.store';
-import { Widget } from '~/store/editor.types';
-import WidgetPreview from './widget-preview';
+import { GripVertical } from 'lucide-react'
+import { useShallow } from 'zustand/shallow'
+import { Button } from '~/components/ui/button'
+import { useEditorStore } from '~/store/editor.store'
+import { Widget } from '~/store/editor.types'
+import WidgetPreview from './widget-preview'
 
 interface LayerItemProps {
   widget: Widget;
   isSelected: boolean;
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
 }
 
-const LayerItem = ({ widget, isSelected }: LayerItemProps) => {
-  const {
-    setSelectedWidgetIds,
-    moveWidgetUp,
-    moveWidgetDown,
-    widgets,
-    removeWidget,
-  } = useEditorStore(
+const LayerItem = ({ widget, isSelected, onDragStart, onDragEnd }: LayerItemProps) => {
+  const { setSelectedWidgetIds, removeWidget } = useEditorStore(
     useShallow((state) => ({
       setSelectedWidgetIds: state.setSelectedWidgetIds,
-      moveWidgetUp: state.moveWidgetUp,
-      moveWidgetDown: state.moveWidgetDown,
-      widgets: state.widgets,
       removeWidget: state.removeWidget,
     }))
   );
@@ -30,15 +23,6 @@ const LayerItem = ({ widget, isSelected }: LayerItemProps) => {
   const handleSelect = () => {
     setSelectedWidgetIds([widget.id]);
   };
-
-  const handleDragStart = (e: React.DragEvent) => {
-    e.dataTransfer.setData('text/plain', widget.id);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const widgetIndex = widgets.findIndex((w) => w.id === widget.id);
-  const canMoveUp = widgetIndex < widgets.length - 1;
-  const canMoveDown = widgetIndex > 0;
 
   const getWidgetName = (widget: Widget) => {
     switch (widget.type) {
@@ -58,14 +42,19 @@ const LayerItem = ({ widget, isSelected }: LayerItemProps) => {
   return (
     <div
       draggable
-      onDragStart={handleDragStart}
-      className={`flex items-center gap-2 p-2 rounded border cursor-pointer transition-colors ${
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      className={`flex items-center gap-2 p-2 rounded border cursor-pointer transition-all duration-200 ${
         isSelected
           ? 'border-primary bg-primary/10'
           : 'border-border hover:border-primary/50'
       }`}
       onClick={handleSelect}
     >
+      <div className="flex-shrink-0 cursor-grab active:cursor-grabbing">
+        <GripVertical className="h-4 w-4 text-muted-foreground" />
+      </div>
+
       <div className="flex-shrink-0">
         <WidgetPreview widget={widget} />
       </div>
@@ -79,45 +68,17 @@ const LayerItem = ({ widget, isSelected }: LayerItemProps) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-1">
-        <Button
-          size="sm"
-          variant="ghost"
-          className="h-6 w-6 p-0"
-          onClick={(e) => {
-            e.stopPropagation();
-            moveWidgetUp(widget.id);
-          }}
-          disabled={!canMoveUp}
-        >
-          <ArrowUp className="h-3 w-3" />
-        </Button>
-
-        <Button
-          size="sm"
-          variant="ghost"
-          className="h-6 w-6 p-0"
-          onClick={(e) => {
-            e.stopPropagation();
-            moveWidgetDown(widget.id);
-          }}
-          disabled={!canMoveDown}
-        >
-          <ArrowDown className="h-3 w-3" />
-        </Button>
-
-        <Button
-          size="sm"
-          variant="ghost"
-          className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-          onClick={(e) => {
-            e.stopPropagation();
-            removeWidget(widget.id);
-          }}
-        >
-          ×
-        </Button>
-      </div>
+      <Button
+        size="sm"
+        variant="ghost"
+        className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+        onClick={(e) => {
+          e.stopPropagation();
+          removeWidget(widget.id);
+        }}
+      >
+        ×
+      </Button>
     </div>
   );
 };

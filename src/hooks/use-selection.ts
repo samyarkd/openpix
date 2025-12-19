@@ -1,7 +1,7 @@
-import Konva from 'konva';
-import { useCallback, useRef, useState } from 'react';
-import { KonvaNodeEvents } from 'react-konva';
-import { findSelectableAncestor } from '~/utils/canvas-utils';
+import Konva from 'konva'
+import { useRef, useState } from 'react'
+import { KonvaNodeEvents } from 'react-konva'
+import { findSelectableAncestor } from '~/utils/canvas-utils'
 
 type SelectionRect = {
   visible: boolean;
@@ -93,7 +93,7 @@ export function useSelection(
     setSelectedWidgetIds(selected);
   };
 
-  const handleStageClick: KonvaNodeEvents['onClick'] = (e) => {
+  const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
     // ignore click while selection rect is visible
     if (selectionRect.visible) return;
 

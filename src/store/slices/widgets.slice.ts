@@ -1,13 +1,13 @@
-import { castDraft } from 'immer';
-import { loadImage } from '~/lib/load-image';
+import { castDraft } from 'immer'
+import { loadImage } from '~/lib/load-image'
 import {
   defaultFilters,
   type ImageItem,
   type SliceCreator,
   type Widget,
   type WidgetsSlice,
-} from '../editor.types';
-import { computeOverlayDimensions } from '../utils/geometry';
+} from '../editor.types'
+import { computeOverlayDimensions } from '../utils/geometry'
 
 export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
   /**
@@ -217,6 +217,16 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
         const widget = state.widgets.splice(index, 1)[0];
         state.widgets.unshift(widget);
       }
+    });
+  },
+
+  moveWidgetToIndex: (id, index) => {
+    set((state) => {
+      const widget = state.widgets.find((w) => w.id === id);
+      if (!widget) return;
+      const widgets = state.widgets.filter((w) => w.id !== id);
+      widgets.splice(index, 0, widget);
+      state.widgets = widgets;
     });
   },
 });

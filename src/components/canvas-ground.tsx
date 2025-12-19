@@ -1,18 +1,18 @@
 'use client';
 
-import Konva from 'konva';
-import { useDeferredValue, useEffect, useRef } from 'react';
+import Konva from 'konva'
+import { useEffect, useRef } from 'react'
 
-import { Group, Layer, Rect, Stage, Text, Transformer } from 'react-konva';
-import { useShallow } from 'zustand/shallow';
-import { useEditorStore } from '~/store/editor.store';
-import { computePaddingAndScale } from '~/store/utils/geometry';
-import StageCropFrame from './editor-tabs/crop/stage-crop-frame';
-import ImageWithFilters from './image-with-filters';
-import { GridPattern } from './magicui/grid-pattern';
-import { useSnapping } from '~/hooks/use-snapping';
-import { useSelection } from '~/hooks/use-selection';
-import { useDragTransform } from '~/hooks/use-drag-transform';
+import { Group, Layer, Rect, Stage, Text, Transformer } from 'react-konva'
+import { useShallow } from 'zustand/shallow'
+import { useDragTransform } from '~/hooks/use-drag-transform'
+import { useSelection } from '~/hooks/use-selection'
+import { useSnapping } from '~/hooks/use-snapping'
+import { useEditorStore } from '~/store/editor.store'
+import { computePaddingAndScale } from '~/store/utils/geometry'
+import StageCropFrame from './editor-tabs/crop/stage-crop-frame'
+import ImageWithFilters from './image-with-filters'
+import { GridPattern } from './magicui/grid-pattern'
 
 type CanvasProps = {
   stageRef: React.RefObject<Konva.Stage | null>;

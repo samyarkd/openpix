@@ -1,5 +1,5 @@
-import type { StateCreator } from 'zustand';
-import { HexColor } from '~/types';
+import type { StateCreator } from 'zustand'
+import { HexColor } from '~/types'
 
 // Editor Tabs
 export type EditorTab =
@@ -172,6 +172,7 @@ export type WidgetsSlice = {
   moveWidgetDown: (id: string) => void;
   moveWidgetToFront: (id: string) => void;
   moveWidgetToBack: (id: string) => void;
+  moveWidgetToIndex: (id: string, index: number) => void;
 };
 
 export type UiSlice = {

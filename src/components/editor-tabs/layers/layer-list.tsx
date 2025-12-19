@@ -1,65 +1,65 @@
-import { useShallow } from 'zustand/shallow';
-import { useEditorStore } from '~/store/editor.store';
-import LayerItem from './layer-item';
+import { useState } from 'react'
+import { useShallow } from 'zustand/shallow'
+import { useEditorStore } from '~/store/editor.store'
+import LayerItem from './layer-item'
 
 const LayerList = () => {
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
   const {
     widgets,
     selectedWidgetIds,
-    moveWidgetToFront,
-    moveWidgetToBack,
-    moveWidgetUp,
-    moveWidgetDown,
+    moveWidgetToIndex,
   } = useEditorStore(
     useShallow((state) => ({
       widgets: state.widgets,
       selectedWidgetIds: state.selectedWidgetIds,
-      moveWidgetToFront: state.moveWidgetToFront,
-      moveWidgetToBack: state.moveWidgetToBack,
-      moveWidgetUp: state.moveWidgetUp,
-      moveWidgetDown: state.moveWidgetDown,
+      moveWidgetToIndex: state.moveWidgetToIndex,
     }))
   );
 
+  const handleDragStart = (e: React.DragEvent, widgetId: string) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', widgetId);
+  };
+
   const handleDrop = (e: React.DragEvent, targetIndex: number) => {
     e.preventDefault();
+    setDragOverIndex(null);
+    
     const draggedId = e.dataTransfer.getData('text/plain');
-
     if (!draggedId) return;
 
     // Find the original index of the dragged widget
     const draggedIndex = widgets.findIndex((w) => w.id === draggedId);
     if (draggedIndex === -1) return;
 
-    // Since we display widgets in reverse order, we need to adjust the target index
+    // Since we display widgets in reverse order (top layer = index 0 in display)
+    // We need to convert the display index to the actual array index
     const actualTargetIndex = widgets.length - 1 - targetIndex;
-
+    
     if (draggedIndex === actualTargetIndex) return;
 
-    // Move to front (top of stack) or back (bottom of stack) based on position
-    if (actualTargetIndex === 0) {
-      moveWidgetToFront(draggedId);
-    } else if (actualTargetIndex === widgets.length - 1) {
-      moveWidgetToBack(draggedId);
-    } else {
-      // For intermediate positions, we can use moveWidgetUp/moveWidgetDown
-      // This is a simplified implementation - in a real app you might want more precise reordering
-      const steps = actualTargetIndex - draggedIndex;
-      if (steps > 0) {
-        for (let i = 0; i < steps; i++) {
-          moveWidgetDown(draggedId);
-        }
-      } else {
-        for (let i = 0; i < Math.abs(steps); i++) {
-          moveWidgetUp(draggedId);
-        }
-      }
+    // Move the widget to the target index
+    moveWidgetToIndex(draggedId, actualTargetIndex);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only clear if we're actually leaving the drop zone
+    const relatedTarget = e.relatedTarget as HTMLElement;
+    if (!relatedTarget || !e.currentTarget.contains(relatedTarget)) {
+      setDragOverIndex(null);
     }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+  const handleDragEnd = () => {
+    setDragOverIndex(null);
   };
 
   // Display widgets in reverse order (top layer first)
@@ -81,11 +81,19 @@ const LayerList = () => {
           <div
             key={widget.id}
             onDrop={(e) => handleDrop(e, index)}
-            onDragOver={handleDragOver}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDragLeave={handleDragLeave}
+            className={`transition-all duration-200 rounded ${
+              dragOverIndex === index
+                ? 'bg-primary/5 border-2 border-primary/20 border-dashed'
+                : ''
+            }`}
           >
             <LayerItem
               widget={widget}
               isSelected={selectedWidgetIds.includes(widget.id)}
+              onDragStart={(e) => handleDragStart(e, widget.id)}
+              onDragEnd={handleDragEnd}
             />
           </div>
         ))}
