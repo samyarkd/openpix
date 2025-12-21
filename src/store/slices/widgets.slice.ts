@@ -1,13 +1,13 @@
-import { castDraft } from 'immer'
-import { loadImage } from '~/lib/load-image'
+import { castDraft } from 'immer';
+import { loadImage } from '~/lib/load-image';
 import {
   defaultFilters,
   type ImageItem,
   type SliceCreator,
   type Widget,
   type WidgetsSlice,
-} from '../editor.types'
-import { computeOverlayDimensions } from '../utils/geometry'
+} from '../editor.types';
+import { computeOverlayDimensions } from '../utils/geometry';
 
 export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
   /**
@@ -102,7 +102,7 @@ export const createWidgetSlice: SliceCreator<WidgetsSlice> = (set, get) => ({
     const s = get();
 
     // this should be seperate and not part of the set function.
-    s.setSelectedWidgetIds([])
+    s.setSelectedWidgetIds([]);
 
     set((state) => {
       state.widgets = state.widgets.filter((w) => !wIds.includes(w.id));

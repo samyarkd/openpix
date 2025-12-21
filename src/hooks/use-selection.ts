@@ -1,9 +1,11 @@
 import Konva from 'konva'
 import { useRef, useState } from 'react'
 import { KonvaNodeEvents } from 'react-konva'
+import { useShallow } from 'zustand/shallow'
+import { useEditorStore } from '~/store/editor.store'
 import { findSelectableAncestor } from '~/utils/canvas-utils'
 
-type SelectionRect = {
+export type SelectionRect = {
   visible: boolean;
   x1: number;
   y1: number;
@@ -13,16 +15,16 @@ type SelectionRect = {
 
 /**
  * Custom hook for handling selection functionality in the canvas.
- * @param groupRefs - Reference to the map of group refs.
- * @param selectedWidgetIds - Current selected widget IDs.
- * @param setSelectedWidgetIds - Function to set selected widget IDs.
  * @returns selectionRect, handleStageMouseDown, handleStageMouseMove, handleStageMouseUp, handleStageClick
  */
-export function useSelection(
-  groupRefs: React.RefObject<Map<string, Konva.Group | Konva.Node>>,
-  selectedWidgetIds: string[],
-  setSelectedWidgetIds: (ids: string[]) => void
-) {
+export function useSelection() {
+  const { groupRefs, selectedWidgetIds, setSelectedWidgetIds } = useEditorStore(
+    useShallow((state) => ({
+      groupRefs: state.groupRefs,
+      selectedWidgetIds: state.selectedWidgetIds,
+      setSelectedWidgetIds: state.setSelectedWidgetIds,
+    }))
+  );
   const isSelecting = useRef(false);
 
   const [selectionRect, setSelectionRect] = useState<SelectionRect>({
@@ -79,7 +81,7 @@ export function useSelection(
 
     // find nodes intersecting with selection box
     const selected: string[] = [];
-    groupRefs.current?.forEach((node, id) => {
+    Object.entries(groupRefs).forEach(([id, node]) => {
       try {
         const rect = node.getClientRect(); // accounts for rotation/scale
         if (Konva.Util.haveIntersection(selBox, rect)) {
@@ -93,7 +95,9 @@ export function useSelection(
     setSelectedWidgetIds(selected);
   };
 
-  const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+  const handleStageClick = (
+    e: Konva.KonvaEventObject<MouseEvent | TouchEvent>
+  ) => {
     // ignore click while selection rect is visible
     if (selectionRect.visible) return;
 

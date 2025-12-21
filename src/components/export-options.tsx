@@ -1,6 +1,5 @@
-import Konva from 'konva';
-import { DownloadIcon, SlidersHorizontalIcon, MagnetIcon } from 'lucide-react';
-import { RefObject, useCallback, useEffect, useState } from 'react';
+import { DownloadIcon, MagnetIcon, SlidersHorizontalIcon } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { useShallow } from 'zustand/shallow';
@@ -19,17 +18,17 @@ import { useEditorStore } from '~/store/editor.store';
 
 const container = document.getElementById('export-portal')!;
 
-const ExportOptions = (props: { stageRef: RefObject<Konva.Stage | null> }) => {
-  const stageRef = props.stageRef;
-
-  const { stageH, stageW, snapEnabled, setSnapEnabled } = useEditorStore(
-    useShallow((state) => ({
-      stageW: state.stageW,
-      stageH: state.stageH,
-      snapEnabled: state.snapEnabled,
-      setSnapEnabled: state.setSnapEnabled,
-    }))
-  );
+const ExportOptions = () => {
+  const { stageRef, stageH, stageW, snapEnabled, setSnapEnabled } =
+    useEditorStore(
+      useShallow((state) => ({
+        stageRef: state.stageRef,
+        stageW: state.stageW,
+        stageH: state.stageH,
+        snapEnabled: state.snapEnabled,
+        setSnapEnabled: state.setSnapEnabled,
+      }))
+    );
 
   // Export options
   const [exportMime, setExportMime] = useState<

@@ -1,16 +1,12 @@
-import { useState } from 'react'
-import { useShallow } from 'zustand/shallow'
-import { useEditorStore } from '~/store/editor.store'
-import LayerItem from './layer-item'
+import { useState } from 'react';
+import { useShallow } from 'zustand/shallow';
+import { useEditorStore } from '~/store/editor.store';
+import LayerItem from './layer-item';
 
 const LayerList = () => {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
-  const {
-    widgets,
-    selectedWidgetIds,
-    moveWidgetToIndex,
-  } = useEditorStore(
+  const { widgets, selectedWidgetIds, moveWidgetToIndex } = useEditorStore(
     useShallow((state) => ({
       widgets: state.widgets,
       selectedWidgetIds: state.selectedWidgetIds,
@@ -26,7 +22,7 @@ const LayerList = () => {
   const handleDrop = (e: React.DragEvent, targetIndex: number) => {
     e.preventDefault();
     setDragOverIndex(null);
-    
+
     const draggedId = e.dataTransfer.getData('text/plain');
     if (!draggedId) return;
 
@@ -37,7 +33,7 @@ const LayerList = () => {
     // Since we display widgets in reverse order (top layer = index 0 in display)
     // We need to convert the display index to the actual array index
     const actualTargetIndex = widgets.length - 1 - targetIndex;
-    
+
     if (draggedIndex === actualTargetIndex) return;
 
     // Move the widget to the target index

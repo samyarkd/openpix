@@ -1,5 +1,6 @@
-import type { StateCreator } from 'zustand';
-import { HexColor } from '~/types';
+import Konva from 'konva'
+import type { StateCreator } from 'zustand'
+import { HexColor } from '~/types'
 
 // Editor Tabs
 export type EditorTab =
@@ -184,8 +185,30 @@ export type UiSlice = {
   setSnapEnabled: (enabled: boolean) => void;
 };
 
+// Stage Slice ()
+export type StageRefTypes = {
+  stageRef: Konva.Stage | null;
+  trRef: Konva.Transformer | null;
+  groupRefs: Record<string, Konva.Group | Konva.Node>;
+};
+
+export type StageSlice = {
+  setStageRefs: <K extends keyof StageRefTypes>(
+    key: K
+  ) => (ref: StageRefTypes[K]) => void;
+
+  stageRef: React.RefObject<StageRefTypes['stageRef']>;
+  trRef: React.RefObject<StageRefTypes['trRef']>;
+  groupRefs: StageRefTypes['groupRefs'];
+  getGroupRef: (id: string) => Konva.Group | Konva.Node | undefined;
+  setGroupRef: (id: string, node: Konva.Group | Konva.Node | null) => void;
+};
 // ------------ Full store ------------------
-export type EditorStore = CanvasSlice & CropSlice & UiSlice & WidgetsSlice;
+export type EditorStore = CanvasSlice &
+  CropSlice &
+  UiSlice &
+  WidgetsSlice &
+  StageSlice;
 
 // Zustand middleware tuple used by slices
 export type WithMiddleware = [

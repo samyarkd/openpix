@@ -1,9 +1,9 @@
-import { GripVertical } from 'lucide-react'
-import { useShallow } from 'zustand/shallow'
-import { Button } from '~/components/ui/button'
-import { useEditorStore } from '~/store/editor.store'
-import { Widget } from '~/store/editor.types'
-import WidgetPreview from './widget-preview'
+import { GripVertical } from 'lucide-react';
+import { useShallow } from 'zustand/shallow';
+import { Button } from '~/components/ui/button';
+import { useEditorStore } from '~/store/editor.store';
+import { Widget } from '~/store/editor.types';
+import WidgetPreview from './widget-preview';
 
 interface LayerItemProps {
   widget: Widget;
@@ -12,7 +12,12 @@ interface LayerItemProps {
   onDragEnd?: (e: React.DragEvent) => void;
 }
 
-const LayerItem = ({ widget, isSelected, onDragStart, onDragEnd }: LayerItemProps) => {
+const LayerItem = ({
+  widget,
+  isSelected,
+  onDragStart,
+  onDragEnd,
+}: LayerItemProps) => {
   const { setSelectedWidgetIds, removeWidget } = useEditorStore(
     useShallow((state) => ({
       setSelectedWidgetIds: state.setSelectedWidgetIds,

@@ -16,7 +16,6 @@ const ExportOptions = dynamic(() => import('~/components/export-options'), {
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<Konva.Stage>(null);
   const { open } = useSidebar();
 
   const { activeTab } = useActiveTab();
@@ -145,10 +144,10 @@ export default function Home() {
       <DoSomethingHint />
 
       {/* Image */}
-      <CanvasGround stageRef={stageRef} />
+      <CanvasGround />
 
       {/* Export Options (portal) */}
-      <ExportOptions stageRef={stageRef} />
+      <ExportOptions />
     </div>
   );
 }
